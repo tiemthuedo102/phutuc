@@ -347,7 +347,7 @@
                     <span>Phụ thu phát sinh (+):</span><span id="extraFeeDisplay">0đ</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 15px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px; font-weight: bold;">
-                    <span>Số tiền còn lại (Tổng - Cọc + Phụ thu):</span><span id="receiveAmountDisplay">0đ</span>
+                    <span id="receiveAmountLabel">Số tiền còn lại (Tổng - Cọc):</span><span id="receiveAmountDisplay">0đ</span>
                 </div>
                 <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
@@ -793,6 +793,7 @@
             const extraFeeLine = document.getElementById('extraFeeLine');
             const extraFeeDisplay = document.getElementById('extraFeeDisplay');
             const extraFeeDetail = document.getElementById('extraFeeDetail');
+            const receiveAmountLabel = document.getElementById('receiveAmountLabel');
             
             phoneError.style.display = 'none';
             rentalDateError.style.display = 'none';
@@ -826,9 +827,11 @@
                     extraFeeDisplay.innerText = `+${formatMoney(extraFee)}đ`;
                     extraFeeDetail.style.display = 'block';
                     extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh +${formatMoney(extraFee)}đ`;
+                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc + phụ thu):";
                 } else {
                     extraFeeLine.style.display = 'none';
                     extraFeeDetail.style.display = 'none';
+                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc):";
                 }
 
                 // Cập nhật hiển thị trong modal giỏ hàng
