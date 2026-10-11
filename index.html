@@ -73,7 +73,7 @@
 
         /* ================= SẢN PHẨM ================= */
         .category-title { text-align: center; color: var(--primary); margin: 30px 0 20px; font-size: 24px; text-transform: uppercase;}
-        .container { max-width: 1200px; margin: 0 auto 50px; padding: 0 15px; min-height: 40vh; }
+        .container { max-width: 1200px; margin: 0 auto 30px; padding: 0 15px; min-height: 40vh; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
         .product-card {
             background: var(--white); border-radius: 12px; overflow: hidden;
@@ -91,6 +91,16 @@
         .btn-outline { background: var(--white); color: var(--primary); border: 2px solid var(--primary); }
         .btn-outline:hover { background: var(--light-pink); }
         .btn-solid { background: var(--primary); color: var(--white); border: 2px solid var(--primary); }
+
+        /* ================= PHÂN TRANG (PAGINATION) ================= */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin: 40px 0 20px; flex-wrap: wrap; }
+        .page-btn {
+            background: var(--white); color: var(--primary); border: 1px solid var(--accent);
+            padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 14px;
+        }
+        .page-btn:hover { background: var(--light-pink); }
+        .page-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* ================= FOOTER ================= */
         .site-footer { background-color: var(--footer-bg); color: #ecf0f1; padding: 50px 20px 20px; border-top: 5px solid var(--primary); }
@@ -216,6 +226,8 @@
         <div class="product-grid" id="productGrid">
             <p style="text-align: center; color: #888; grid-column: 1/-1;">Đang đồng bộ dữ liệu từ Google Sheets...</p>
         </div>
+        <!-- VÙNG PHÂN TRANG -->
+        <div class="pagination" id="paginationContainer"></div>
     </div>
 
     <button class="cart-float-btn" onclick="openCart()">
@@ -328,6 +340,9 @@
         
         let currentActiveCategory = 'Tất cả';
         let currentActiveSubcategory = null;
+        
+        let currentPage = 1;
+        const itemsPerPage = 30; // Cấu hình 30 sản phẩm/trang
         
         function formatMoney(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
@@ -496,6 +511,7 @@
         function filterProducts(category, subcategory = null) {
             currentActiveCategory = category;
             currentActiveSubcategory = subcategory;
+            currentPage = 1; // Reset về trang 1 khi đổi danh mục
 
             const btnAll = document.getElementById('btnAll');
             if (btnAll) btnAll.classList.remove('active');
@@ -512,13 +528,16 @@
         }
 
         function filterProductsByKeyword() {
+            currentPage = 1; // Reset về trang 1 khi tìm kiếm
             renderFilteredProducts();
         }
 
         function renderFilteredProducts() {
             const keyword = document.getElementById('searchInput').value.toLowerCase().trim();
             const grid = document.getElementById('productGrid');
+            const paginationContainer = document.getElementById('paginationContainer');
             grid.innerHTML = '';
+            paginationContainer.innerHTML = '';
             
             let filtered = allProducts;
 
@@ -546,7 +565,15 @@
                 return;
             }
 
-            filtered.forEach(product => {
+            // Tính toán phân trang
+            const totalPages = Math.ceil(filtered.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages;
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = filtered.slice(startIndex, endIndex);
+
+            paginatedItems.forEach(product => {
                 const mainImg = product.image1 && product.image1.trim() !== '' ? product.image1 : 'https://via.placeholder.com/500?text=Chưa+có+ảnh';
                 grid.innerHTML += `
                     <div class="product-card">
@@ -563,6 +590,35 @@
                     </div>
                 `;
             });
+
+            // Render nút phân trang nếu tổng số trang > 1
+            if (totalPages > 1) {
+                let paginationHTML = '';
+                
+                // Nút Trang trước (Previous)
+                paginationHTML += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">❮ Trước</button>`;
+
+                // Các nút số trang
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                        paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                    } else if (i === currentPage - 2 || i === currentPage + 2) {
+                        paginationHTML += `<span>...</span>`;
+                    }
+                }
+
+                // Nút Trang sau (Next)
+                paginationHTML += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Sau ❯</button>`;
+                
+                paginationContainer.innerHTML = paginationHTML;
+            }
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            renderFilteredProducts();
+            // Cuộn mượt lên đầu danh sách sản phẩm khi chuyển trang
+            document.getElementById('menu-bar').scrollIntoView({ behavior: 'smooth' });
         }
 
         function openAlbum(id) {
