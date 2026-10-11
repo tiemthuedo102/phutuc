@@ -775,7 +775,7 @@
 
                 // Hiển thị tổng tiền kèm (đặt cọc) ngay sau số tiền cọc
                 document.getElementById('grandTotalDisplay').innerText = formatMoney(total) + 'đ';
-                document.getElementById('finalPaymentDisplay').innerHTML = `${formatMoney(finalPayment)}đ <span style="font-weight: normal; font-size: 13px; color: #e67e22;">(đặt cọc ${formatMoney(deposit)}đ)</span>`;
+                document.getElementById('finalPaymentDisplay').innerHTML = `${formatMoney(finalPayment)}đ <span style="font-weight: normal; font-size: 13px; color: #e67e22;">(đặt cọc: ${formatMoney(deposit)}đ)</span>`;
             }
             document.getElementById('cartModal').style.display = 'flex';
         }
