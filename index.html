@@ -301,6 +301,7 @@
             <div class="form-group">
                 <label>Số lượng:</label>
                 <input type="number" id="orderQty" value="1" min="1" oninput="updateModalPrice()">
+                <small id="maxQtyHint" style="color: #e67e22; display: none; margin-top: 4px; font-size: 12px; font-weight: bold;"></small>
             </div>
             <button class="btn btn-solid" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="addToCart()">+ Thêm vào giỏ</button>
         </div>
@@ -375,6 +376,7 @@
         let currentSlideImages = []; 
         let currentSlideIndex = 0; 
         let currentNumericPrice = 0; 
+        let currentMaxQuantity = 999;
         
         let currentActiveCategory = 'Tất cả';
         let currentActiveSubcategory = null;
@@ -721,7 +723,21 @@
             let numericOnly = rawPriceStr.replace(/[^0-9]/g, '');
             currentNumericPrice = parseInt(numericOnly, 10) || 0; 
 
-            document.getElementById('orderQty').value = 1;
+            // Thiết lập số lượng tối đa từ Google Sheets
+            let maxQtyParsed = parseInt(p.quantity, 10);
+            currentMaxQuantity = (!isNaN(maxQtyParsed) && maxQtyParsed > 0) ? maxQtyParsed : 999;
+
+            const qtyInput = document.getElementById('orderQty');
+            qtyInput.max = currentMaxQuantity;
+            qtyInput.value = 1;
+
+            const maxQtyHint = document.getElementById('maxQtyHint');
+            if (!isNaN(maxQtyParsed) && maxQtyParsed > 0) {
+                maxQtyHint.innerText = `📦 Tối đa trong kho: ${currentMaxQuantity} sản phẩm`;
+                maxQtyHint.style.display = 'block';
+            } else {
+                maxQtyHint.style.display = 'none';
+            }
             
             const s = document.getElementById('orderSize'); s.innerHTML = '';
             if(p.sizes && p.sizes.trim() !== '') {
@@ -734,11 +750,32 @@
         }
 
         function updateModalPrice() { 
-            document.getElementById('orderPriceDisplay').innerText = `Tạm tính: ${formatMoney(currentNumericPrice * (parseInt(document.getElementById('orderQty').value) || 1))}đ`; 
+            const qtyInput = document.getElementById('orderQty');
+            let qty = parseInt(qtyInput.value, 10) || 1;
+
+            if (qty > currentMaxQuantity) {
+                qty = currentMaxQuantity;
+                qtyInput.value = currentMaxQuantity;
+                showCustomAlert(`Tiệm chỉ còn tối đa <b>${currentMaxQuantity}</b> sản phẩm này trong kho!`);
+            } else if (qty < 1) {
+                qty = 1;
+                qtyInput.value = 1;
+            }
+
+            document.getElementById('orderPriceDisplay').innerText = `Tạm tính: ${formatMoney(currentNumericPrice * qty)}đ`; 
         }
 
         function addToCart() {
-            const qty = parseInt(document.getElementById('orderQty').value) || 1;
+            const qtyInput = document.getElementById('orderQty');
+            let qty = parseInt(qtyInput.value, 10) || 1;
+
+            if (qty > currentMaxQuantity) {
+                qty = currentMaxQuantity;
+                qtyInput.value = currentMaxQuantity;
+                showCustomAlert(`Số lượng vượt quá tồn kho (tối đa ${currentMaxQuantity}). Đã tự động điều chỉnh.`);
+                return;
+            }
+
             const item = { 
                 id: document.getElementById('orderProductId').value, 
                 name: document.getElementById('orderProductName').innerText, 
