@@ -632,7 +632,7 @@
 
             paginatedItems.forEach(product => {
                 const mainImg = product.image1 && product.image1.trim() !== '' ? product.image1 : 'https://via.placeholder.com/500?text=Chưa+có+ảnh';
-                const quantityText = product.quantity !== '' ? ` | SL: ${product.quantity}` : '';
+                const quantityText = product.quantity !== '' ? ` | Số lượng: ${product.quantity}` : '';
                 grid.innerHTML += `
                     <div class="product-card">
                         <img class="main-img" src="${mainImg}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/500?text=Lỗi+Ảnh'">
