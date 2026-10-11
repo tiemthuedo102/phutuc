@@ -816,18 +816,19 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê
-                const deposit = calculateDeposit(baseTotal); // Tiền cọc tính trên tổng gốc
+                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (đã gồm phụ thu)
+                const deposit = calculateDeposit(baseTotal); // Tiền cọc
                 
-                // Công thức chuẩn: Số tiền còn lại = Tổng - Cọc + phụ thu
-                const receiveAmount = baseTotal - deposit + extraFee;
+                // Vì "Tổng tiền thuê" (finalTotal) đã bao gồm phụ thu, 
+                // Số tiền còn lại chính xác là: Tổng - Cọc (VD: 130.000 - 10.000 = 120.000đ)
+                const receiveAmount = finalTotal - deposit;
 
                 if (extraFee > 0) {
                     extraFeeLine.style.display = 'flex';
                     extraFeeDisplay.innerText = `+${formatMoney(extraFee)}đ`;
                     extraFeeDetail.style.display = 'block';
                     extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh +${formatMoney(extraFee)}đ`;
-                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc + phụ thu):";
+                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc):";
                 } else {
                     extraFeeLine.style.display = 'none';
                     extraFeeDetail.style.display = 'none';
@@ -928,7 +929,7 @@
             const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
             const finalTotal = baseTotal + extraFee;
             const deposit = calculateDeposit(baseTotal);
-            const receiveAmount = baseTotal - deposit + extraFee;
+            const receiveAmount = finalTotal - deposit;
 
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
