@@ -344,7 +344,7 @@
                     <span>Đặt cọc (-):</span><span id="depositDisplay">0đ</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 14px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px;">
-                    <span>Số tiền còn lại (Tổng - Cọc):</span><span id="receiveAmountDisplay">0đ</span>
+                    <span>Số tiền còn lại (Tổng - Cọc + phụ thu):</span><span id="receiveAmountDisplay">0đ</span>
                 </div>
                 <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
@@ -810,11 +810,11 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (đã bao gồm phụ thu nếu có)
-                const deposit = calculateDeposit(finalTotal); // Tiền cọc
+                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (Tổng gốc + phụ thu)
+                const deposit = calculateDeposit(baseTotal); // Tiền cọc tính trên tổng gốc
                 
-                // Công thức: Số tiền còn lại = Tổng - Cọc
-                const receiveAmount = finalTotal - deposit;
+                // Công thức chuẩn theo yêu cầu: Số tiền còn lại = Tổng - Cọc + phụ thu
+                const receiveAmount = baseTotal - deposit + extraFee;
 
                 if (extraFee > 0) {
                     extraFeeDetail.style.display = 'block';
@@ -916,8 +916,8 @@
             cart.forEach(i => { baseTotal += i.itemTotal; });
             const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
             const finalTotal = baseTotal + extraFee;
-            const deposit = calculateDeposit(finalTotal);
-            const receiveAmount = finalTotal - deposit;
+            const deposit = calculateDeposit(baseTotal);
+            const receiveAmount = baseTotal - deposit + extraFee;
 
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
@@ -969,7 +969,7 @@
                 console.error(err);
                 showCustomAlert("Không thể kết nối tới Telegram. Vui lòng thử lại sau!");
             } finally {
-                btn.innerText = "📩 Gửi đơn tới SDDT shop: 0365 630 354";
+                btn.innerText = "📩 Gửi đơn qua Telegram";
                 btn.disabled = false;
             }
         }
