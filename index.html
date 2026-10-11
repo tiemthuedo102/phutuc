@@ -341,10 +341,10 @@
                     <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #e67e22; font-size: 14px;">
-                    <span>Đặt cọc:</span><span id="depositDisplay">0đ</span>
+                    <span>Đặt cọc (-):</span><span id="depositDisplay">0đ</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 14px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px;">
-                    <span>Số tiền còn lại:</span><span id="receiveAmountDisplay">0đ</span>
+                    <span>Số tiền còn lại (Tổng - Cọc):</span><span id="receiveAmountDisplay">0đ</span>
                 </div>
                 <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
@@ -810,13 +810,15 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const finalTotal = baseTotal + extraFee;
-                const deposit = calculateDeposit(finalTotal);
+                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (đã bao gồm phụ thu nếu có)
+                const deposit = calculateDeposit(finalTotal); // Tiền cọc
+                
+                // Công thức: Số tiền còn lại = Tổng - Cọc
                 const receiveAmount = finalTotal - deposit;
 
                 if (extraFee > 0) {
                     extraFeeDetail.style.display = 'block';
-                    extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh ${formatMoney(extraFee)}đ`;
+                    extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh +${formatMoney(extraFee)}đ`;
                 } else {
                     extraFeeDetail.style.display = 'none';
                 }
@@ -917,7 +919,6 @@
             const deposit = calculateDeposit(finalTotal);
             const receiveAmount = finalTotal - deposit;
 
-            // Xây dựng tin nhắn gửi Telegram theo đúng yêu cầu cấu trúc mới
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n`;
