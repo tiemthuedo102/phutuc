@@ -816,9 +816,9 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const deposit = calculateDeposit(baseTotal); // Tiền cọc
+                const deposit = calculateDeposit(baseTotal); // Tiền cọc tính trên tổng gốc
                 
-                // Tổng tiền thuê hiển thị riêng chỉ là tiền thuê đồ gốc (baseTotal)
+                // Tổng tiền thuê hiển thị riêng CHỈ là tiền thuê đồ gốc (baseTotal)
                 const grandTotal = baseTotal; 
                 
                 // Số tiền còn lại = Tổng (tiền thuê gốc) - Cọc + Phụ thu
@@ -946,6 +946,9 @@
             }
             msg += `💰 *Tổng tiền thuê:* ${formatMoney(baseTotal)}đ\n`;
             msg += `📌 *Đặt cọc:* ${formatMoney(deposit)}\n`;
+            if (extraFee > 0) {
+                msg += `➕ *Phụ thu phát sinh:* +${formatMoney(extraFee)}đ\n`;
+            }
             msg += `💵 *Số tiền còn lại:* ${formatMoney(receiveAmount)}đ\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
 
