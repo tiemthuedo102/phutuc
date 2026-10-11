@@ -816,19 +816,20 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (đã gồm phụ thu)
                 const deposit = calculateDeposit(baseTotal); // Tiền cọc
                 
-                // Vì "Tổng tiền thuê" (finalTotal) đã bao gồm phụ thu, 
-                // Số tiền còn lại chính xác là: Tổng - Cọc (VD: 130.000 - 10.000 = 120.000đ)
-                const receiveAmount = finalTotal - deposit;
+                // Tổng tiền thuê hiển thị riêng chỉ là tiền thuê đồ gốc (baseTotal)
+                const grandTotal = baseTotal; 
+                
+                // Số tiền còn lại = Tổng (tiền thuê gốc) - Cọc + Phụ thu
+                const receiveAmount = baseTotal - deposit + extraFee;
 
                 if (extraFee > 0) {
                     extraFeeLine.style.display = 'flex';
                     extraFeeDisplay.innerText = `+${formatMoney(extraFee)}đ`;
                     extraFeeDetail.style.display = 'block';
                     extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh +${formatMoney(extraFee)}đ`;
-                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc):";
+                    receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc + phụ thu):";
                 } else {
                     extraFeeLine.style.display = 'none';
                     extraFeeDetail.style.display = 'none';
@@ -836,7 +837,7 @@
                 }
 
                 // Cập nhật hiển thị trong modal giỏ hàng
-                document.getElementById('grandTotalDisplay').innerText = `${formatMoney(finalTotal)}đ`;
+                document.getElementById('grandTotalDisplay').innerText = `${formatMoney(grandTotal)}đ`;
                 document.getElementById('depositDisplay').innerText = `${formatMoney(deposit)}đ`;
                 document.getElementById('receiveAmountDisplay').innerText = `${formatMoney(receiveAmount)}đ`;
             }
@@ -927,9 +928,8 @@
             let baseTotal = 0;
             cart.forEach(i => { baseTotal += i.itemTotal; });
             const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-            const finalTotal = baseTotal + extraFee;
             const deposit = calculateDeposit(baseTotal);
-            const receiveAmount = finalTotal - deposit;
+            const receiveAmount = baseTotal - deposit + extraFee;
 
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
@@ -944,7 +944,7 @@
             if (extraFee > 0) {
                 msg += `⏱ *Số ngày thuê:* ${rentalDays} ngày (Phụ thu: +${formatMoney(extraFee)}đ)\n`;
             }
-            msg += `💰 *Tổng tiền thuê:* ${formatMoney(finalTotal)}đ\n`;
+            msg += `💰 *Tổng tiền thuê:* ${formatMoney(baseTotal)}đ\n`;
             msg += `📌 *Đặt cọc:* ${formatMoney(deposit)}\n`;
             msg += `💵 *Số tiền còn lại:* ${formatMoney(receiveAmount)}đ\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
