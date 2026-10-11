@@ -341,7 +341,10 @@
                     <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; color: #e67e22; font-size: 14px;">
-                    <span>Tiền đặt cọc (10%):</span><span id="depositDisplay">0đ</span>
+                    <span>Đặt cọc:</span><span id="depositDisplay">0đ</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 14px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px;">
+                    <span>Số tiền khi nhận đồ:</span><span id="receiveAmountDisplay">0đ</span>
                 </div>
                 <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
@@ -809,6 +812,7 @@
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
                 const finalTotal = baseTotal + extraFee;
                 const deposit = calculateDeposit(finalTotal);
+                const receiveAmount = finalTotal - deposit;
 
                 if (extraFee > 0) {
                     extraFeeDetail.style.display = 'block';
@@ -817,9 +821,10 @@
                     extraFeeDetail.style.display = 'none';
                 }
 
-                // Hiển thị rõ ràng tổng tiền và tiền cọc ở giỏ hàng
+                // Cập nhật hiển thị trong modal giỏ hàng
                 document.getElementById('grandTotalDisplay').innerText = `${formatMoney(finalTotal)}đ`;
                 document.getElementById('depositDisplay').innerText = `${formatMoney(deposit)}đ`;
+                document.getElementById('receiveAmountDisplay').innerText = `${formatMoney(receiveAmount)}đ`;
             }
             document.getElementById('cartModal').style.display = 'flex';
         }
@@ -910,8 +915,9 @@
             const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
             const finalTotal = baseTotal + extraFee;
             const deposit = calculateDeposit(finalTotal);
+            const receiveAmount = finalTotal - deposit;
 
-            // Cập nhật nội dung tin nhắn gửi về Telegram có đầy đủ dòng Tổng tiền và Đặt cọc riêng biệt
+            // Xây dựng tin nhắn gửi Telegram theo đúng yêu cầu cấu trúc mới
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n`;
@@ -926,7 +932,8 @@
                 msg += `⏱ *Số ngày thuê:* ${rentalDays} ngày (Phụ thu: +${formatMoney(extraFee)}đ)\n`;
             }
             msg += `💰 *Tổng tiền thuê:* ${formatMoney(finalTotal)}đ\n`;
-            msg += `📌 *Tiền đặt cọc cần thu:* ${formatMoney(deposit)}đ\n\n`;
+            msg += `📌 *Đặt cọc:* ${formatMoney(deposit)}\n`;
+            msg += `💵 *Số tiền khi nhận đồ:* ${formatMoney(receiveAmount)}đ\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
 
             const btn = document.getElementById('checkoutBtn');
