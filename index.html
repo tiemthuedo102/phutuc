@@ -111,7 +111,6 @@
         .footer-col a { color: #bdc3c7; text-decoration: none; transition: 0.3s; display: block; margin-bottom: 10px; cursor: pointer; }
         .footer-col a:hover { color: var(--white); padding-left: 8px; cursor: pointer; }
         
-        /* Map Container & Link Styling */
         .footer-col p a.map-link { color: #ffb6c1; text-decoration: underline; display: inline; margin: 0; transition: 0.2s; }
         .footer-col p a.map-link:hover { color: #ffffff; padding-left: 0; }
         .footer-map { width: 100%; height: 160px; border-radius: 8px; overflow: hidden; margin-top: 10px; border: 1px solid #34495e; }
@@ -219,7 +218,6 @@
                 <span id="menuIcon">▼</span>
             </button>
             
-            <!-- Ô TÌM KIẾM MÃ/TÊN SẢN PHẨM -->
             <div class="search-box-container">
                 <input type="text" id="searchInput" class="search-input" placeholder="🔍 Nhập mã sản phẩm hoặc tên đồ cần tìm..." oninput="filterProductsByKeyword()">
             </div>
@@ -244,7 +242,6 @@
         <div class="product-grid" id="productGrid">
             <p style="text-align: center; color: #888; grid-column: 1/-1;">Đang đồng bộ dữ liệu từ Google Sheets...</p>
         </div>
-        <!-- VÙNG PHÂN TRANG -->
         <div class="pagination" id="paginationContainer"></div>
     </div>
 
@@ -693,7 +690,12 @@
             if (!p) return;
             document.getElementById('orderProductId').value = p.id; 
             document.getElementById('orderProductName').innerText = p.name;
-            currentNumericPrice = parseInt(p.price.replace(/[^0-9]/g, '')) || 0; 
+            
+            // Xử lý chuẩn hóa giá tiền an toàn từ Google Sheets
+            let rawPriceStr = String(p.price || '0');
+            let numericOnly = rawPriceStr.replace(/[^0-9]/g, '');
+            currentNumericPrice = parseInt(numericOnly, 10) || 0; 
+
             document.getElementById('orderQty').value = 1;
             
             const s = document.getElementById('orderSize'); s.innerHTML = '';
