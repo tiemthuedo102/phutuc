@@ -445,29 +445,41 @@
                 const lines = csv.trim().split('\n');
                 if (lines.length < 2) throw new Error('File trống');
 
-                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
-                const idIdx = headers.indexOf('id');
-                const nameIdx = headers.indexOf('name');
-                const catIdx = headers.indexOf('category');
-                const subCatIdx = headers.indexOf('subcategory');
-                const priceIdx = headers.indexOf('price');
-                const sizesIdx = headers.indexOf('sizes');
-                const img1Idx = headers.indexOf('image1');
-                const img2Idx = headers.indexOf('image2');
-                const img3Idx = headers.indexOf('image3');
-                const img4Idx = headers.indexOf('image4');
-                const img5Idx = headers.indexOf('image5');
+                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
+                
+                // Hàm tìm header linh hoạt hỗ trợ cả tiếng Anh lẫn tiếng Việt (không phân biệt dấu/hoa thường)
+                function findHeader(possibleNames) {
+                    for (let name of possibleNames) {
+                        let idx = headers.indexOf(name);
+                        if (idx !== -1) return idx;
+                    }
+                    return -1;
+                }
+
+                const idIdx = findHeader(['id', 'ma', 'mã', 'code', 'product_id', 'masp']);
+                const nameIdx = findHeader(['name', 'ten', 'tên', 'product_name', 'tensp', 'sanpham']);
+                const catIdx = findHeader(['category', 'danhmuc', 'danh mục', 'phanloai', 'phân loại', 'loai', 'loại']);
+                const subCatIdx = findHeader(['subcategory', 'sub_category', 'danhmuccon', 'danh mục con', 'phanloaicon']);
+                const priceIdx = findHeader(['price', 'gia', 'giá', 'giá tiền', 'giatien', 'dongia', 'đơn giá']);
+                const sizesIdx = findHeader(['sizes', 'size', 'kichthuoc', 'kích thước']);
+                const img1Idx = findHeader(['image1', 'img1', 'anh1', 'ảnh 1', 'hinh1', 'hình 1', 'image', 'ảnh', 'hinh']);
+                const img2Idx = findHeader(['image2', 'img2', 'anh2', 'ảnh 2', 'hinh2', 'hình 2']);
+                const img3Idx = findHeader(['image3', 'img3', 'anh3', 'ảnh 3', 'hinh3', 'hình 3']);
+                const img4Idx = findHeader(['image4', 'img4', 'anh4', 'ảnh 4', 'hinh4', 'hình 4']);
+                const img5Idx = findHeader(['image5', 'img5', 'anh5', 'ảnh 5', 'hinh5', 'hình 5']);
 
                 allProducts = lines.slice(1).map((line, idx) => {
                     const parts = parseCSVLine(line);
-                    if (!parts[nameIdx]) return null;
+                    const prodName = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx] : (parts[1] || '');
+                    if (!prodName) return null;
+
                     return {
-                        id: idIdx !== -1 && parts[idIdx] ? parts[idIdx] : `prod-${idx}`,
-                        name: parts[nameIdx] || 'Sản phẩm',
+                        id: idIdx !== -1 && parts[idIdx] ? parts[idIdx].trim() : (parts[0] ? parts[0].trim() : `prod-${idx}`),
+                        name: prodName,
                         category: catIdx !== -1 && parts[catIdx] ? parts[catIdx] : 'Khác',
-                        subcategory: subCatIdx !== -1 ? parts[subCatIdx] : '',
-                        price: priceIdx !== -1 ? parts[priceIdx] : '0đ',
-                        sizes: sizesIdx !== -1 ? parts[sizesIdx] : 'FreeSize',
+                        subcategory: subCatIdx !== -1 && parts[subCatIdx] ? parts[subCatIdx] : '',
+                        price: priceIdx !== -1 && parts[priceIdx] ? parts[priceIdx] : '0đ',
+                        sizes: sizesIdx !== -1 && parts[sizesIdx] ? parts[sizesIdx] : 'FreeSize',
                         image1: convertGoogleDriveUrl(img1Idx !== -1 ? parts[img1Idx] : ''),
                         image2: convertGoogleDriveUrl(img2Idx !== -1 ? parts[img2Idx] : ''),
                         image3: convertGoogleDriveUrl(img3Idx !== -1 ? parts[img3Idx] : ''),
@@ -650,7 +662,7 @@
         }
 
         function openAlbum(id) {
-            const p = allProducts.find(x => x.id === id); 
+            const p = allProducts.find(x => String(x.id).trim() === String(id).trim()); 
             if (!p) return;
             document.getElementById('albumTitle').innerText = p.name;
             
@@ -686,17 +698,19 @@
         }
 
         function openOrder(id) {
-            const p = allProducts.find(x => x.id === id); 
-            if (!p) return;
+            // Tìm đúng sản phẩm theo ID đã chuẩn hóa khoảng trắng
+            const p = allProducts.find(x => String(x.id).trim() === String(id).trim()); 
+            if (!p) {
+                showCustomAlert("Không tìm thấy sản phẩm này!");
+                return;
+            }
             document.getElementById('orderProductId').value = p.id; 
             document.getElementById('orderProductName').innerText = p.name;
             
-            // Xử lý thông minh lấy đúng phần số trước dấu chữ cái đầu tiên (loại bỏ dấu chấm phân cách, chữ 'đ', khoảng trắng...)
-            let rawPriceStr = String(p.price || '0').trim();
-            // Tách lấy phần số và dấu phân cách trước chữ cái đầu tiên (ví dụ: "60.000 đ" -> lấy "60.000")
-            let matchPart = rawPriceStr.match(/^[0-9\.,]+/);
-            let numberOnly = matchPart ? matchPart[0].replace(/[^0-9]/g, '') : rawPriceStr.replace(/[^0-9]/g, '');
-            currentNumericPrice = parseInt(numberOnly, 10) || 0;
+            // Xử lý giá tiền triệt để: loại bỏ toàn bộ dấu chấm, phẩy, chữ 'đ', khoảng trắng để lấy đúng giá trị số nguyên
+            let rawPriceStr = String(p.price || '0');
+            let numericOnly = rawPriceStr.replace(/[^0-9]/g, '');
+            currentNumericPrice = parseInt(numericOnly, 10) || 0; 
 
             document.getElementById('orderQty').value = 1;
             
