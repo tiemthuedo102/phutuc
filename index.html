@@ -138,8 +138,11 @@
         
         .cart-total-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--primary); display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
         .cart-row-sum { display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); }
-        .cart-row-deposit { display: flex; justify-content: space-between; font-weight: bold; color: #e67e22; }
         .cart-row-grand { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; color: var(--primary); border-top: 1px dashed #ddd; padding-top: 6px; }
+
+        /* Style để xếp 2 trường ngày mượn / ngày trả trên cùng một hàng */
+        .form-row-dates { display: flex; gap: 10px; }
+        .form-row-dates .form-group { flex: 1; min-width: 0; }
 
         /* ================= CUSTOM ALERT MODAL ================= */
         .custom-alert-box { max-width: 380px; text-align: center; padding: 30px 20px; }
@@ -322,25 +325,25 @@
                     <input type="tel" id="customerPhone" placeholder="Nhập chính xác số điện thoại của bạn" maxlength="10" inputmode="numeric" autocomplete="tel">
                     <small id="phoneError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng nhập đúng số điện thoại di động Việt Nam (10 chữ số, bắt đầu bằng số 0).</small>
                 </div>
-                <div class="form-group">
-                    <label for="rentalDate">Ngày mượn đồ (<span style="color: red;">*</span>):</label>
-                    <input type="date" id="rentalDate">
-                    <small id="rentalDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng chọn ngày mượn đồ.</small>
-                </div>
-                <div class="form-group">
-                    <label for="returnDate">Ngày trả đồ (<span style="color: red;">*</span>):</label>
-                    <input type="date" id="returnDate">
-                    <small id="returnDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng chọn ngày trả đồ (phải sau hoặc bằng ngày mượn).</small>
+                <!-- NGÀY MƯỢN VÀ NGÀY TRẢ TRÊN CÙNG MỘT HÀNG -->
+                <div class="form-row-dates">
+                    <div class="form-group">
+                        <label for="rentalDate">Ngày mượn đồ (<span style="color: red;">*</span>):</label>
+                        <input type="date" id="rentalDate">
+                        <small id="rentalDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Chọn ngày mượn.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="returnDate">Ngày trả đồ (<span style="color: red;">*</span>):</label>
+                        <input type="date" id="returnDate">
+                        <small id="returnDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Chọn ngày trả.</small>
+                    </div>
                 </div>
             </div>
 
-            <!-- PHẦN TỔNG KẾT HÓA ĐƠN: TỔNG TIỀN, TIỀN CỌC, TỔNG THANH TOÁN -->
+            <!-- PHẦN TỔNG KẾT HÓA ĐƠN -->
             <div class="cart-total-footer" id="cartTotalFooter" style="display: none;">
                 <div class="cart-row-sum">
                     <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
-                </div>
-                <div class="cart-row-deposit">
-                    <span>Tiền đặt cọc (10%):</span><span id="depositDisplay">0đ</span>
                 </div>
                 <div class="cart-row-grand">
                     <span>Cần thanh toán ban đầu:</span><span id="finalPaymentDisplay">0đ</span>
@@ -732,7 +735,7 @@
             closeModal('orderModal');
         }
 
-        // Hàm tính tiền cọc: 10% tổng hóa đơn, làm tròn đến 10 nghìn chẵn
+        // Tính tiền cọc: 10% tổng hóa đơn, làm tròn đến 10 nghìn chẵn
         function calculateDeposit(total) {
             let rawDeposit = total * 0.1;
             return Math.round(rawDeposit / 10000) * 10000;
@@ -768,11 +771,11 @@
                 });
 
                 const deposit = calculateDeposit(total);
-                const finalPayment = total + deposit; // Hoặc điều chỉnh tùy theo logic thanh toán tổng cộng
+                const finalPayment = total + deposit;
 
+                // Hiển thị tổng tiền kèm (đặt cọc) ngay sau số tiền cọc
                 document.getElementById('grandTotalDisplay').innerText = formatMoney(total) + 'đ';
-                document.getElementById('depositDisplay').innerText = formatMoney(deposit) + 'đ';
-                document.getElementById('finalPaymentDisplay').innerText = formatMoney(finalPayment) + 'đ';
+                document.getElementById('finalPaymentDisplay').innerHTML = `${formatMoney(finalPayment)}đ <span style="font-weight: normal; font-size: 13px; color: #e67e22;">(đặt cọc ${formatMoney(deposit)}đ)</span>`;
             }
             document.getElementById('cartModal').style.display = 'flex';
         }
@@ -833,12 +836,12 @@
             }
 
             if (!returnVal) {
-                returnDateError.innerText = 'Vui lòng chọn ngày trả đồ.';
+                returnDateError.innerText = 'Chọn ngày trả.';
                 returnDateError.style.display = 'block';
                 if (!hasError) returnDateInput.focus();
                 hasError = true;
             } else if (rentalVal && returnVal && returnVal < rentalVal) {
-                returnDateError.innerText = 'Ngày trả phải sau hoặc bằng ngày mượn.';
+                returnDateError.innerText = 'Trả phải >= mượn.';
                 returnDateError.style.display = 'block';
                 if (!hasError) returnDateInput.focus();
                 hasError = true;
@@ -874,8 +877,7 @@
             });
             msg += `➖➖➖➖➖➖➖\n`;
             msg += `💰 *Tổng tiền thuê:* ${formatMoney(t)}đ\n`;
-            msg += `🔒 *Tiền đặt cọc (10%):* ${formatMoney(deposit)}đ\n`;
-            msg += `💳 *Cần thanh toán ban đầu:* ${formatMoney(finalPayment)}đ\n\n`;
+            msg += `💳 *Cần thanh toán ban đầu:* ${formatMoney(finalPayment)}đ *(đặt cọc ${formatMoney(deposit)}đ)*\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
 
             const btn = document.getElementById('checkoutBtn');
