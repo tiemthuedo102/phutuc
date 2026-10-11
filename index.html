@@ -691,10 +691,12 @@
             document.getElementById('orderProductId').value = p.id; 
             document.getElementById('orderProductName').innerText = p.name;
             
-            // Xử lý chuẩn hóa giá tiền an toàn từ Google Sheets
+            // Sửa lỗi xử lý chuẩn hóa giá tiền đúng với chuỗi hiển thị trên web
             let rawPriceStr = String(p.price || '0');
-            let numericOnly = rawPriceStr.replace(/[^0-9]/g, '');
-            currentNumericPrice = parseInt(numericOnly, 10) || 0; 
+            // Lấy chính xác phần chuỗi số và dấu phân cách trước ký tự chữ cái đầu tiên (vd: loại bỏ chữ 'đ' hoặc ký tự sau số)
+            let matchPrice = rawPriceStr.match(/^[\d\.,]+/);
+            let cleanNumberStr = matchPrice ? matchPrice[0].replace(/[^0-9]/g, '') : rawPriceStr.replace(/[^0-9]/g, '');
+            currentNumericPrice = parseInt(cleanNumberStr, 10) || 0;
 
             document.getElementById('orderQty').value = 1;
             
