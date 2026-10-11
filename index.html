@@ -470,6 +470,7 @@
                 const subCatIdx = findHeader(['subcategory', 'sub_category', 'danhmuccon', 'danh mục con', 'phanloaicon']);
                 const priceIdx = findHeader(['price', 'gia', 'giá', 'giá tiền', 'giatien', 'dongia', 'đơn giá']);
                 const sizesIdx = findHeader(['sizes', 'size', 'kichthuoc', 'kích thước']);
+                const qtyIdx = findHeader(['so_luong', 'soluong', 'số lượng', 'quantity', 'qty', 'sl']);
                 const img1Idx = findHeader(['image1', 'img1', 'anh1', 'ảnh 1', 'hinh1', 'hình 1', 'image', 'ảnh', 'hinh']);
                 const img2Idx = findHeader(['image2', 'img2', 'anh2', 'ảnh 2', 'hinh2', 'hình 2']);
                 const img3Idx = findHeader(['image3', 'img3', 'anh3', 'ảnh 3', 'hinh3', 'hình 3']);
@@ -488,6 +489,7 @@
                         subcategory: subCatIdx !== -1 && parts[subCatIdx] ? parts[subCatIdx] : '',
                         price: priceIdx !== -1 && parts[priceIdx] ? parts[priceIdx] : '0đ',
                         sizes: sizesIdx !== -1 && parts[sizesIdx] ? parts[sizesIdx] : 'FreeSize',
+                        quantity: qtyIdx !== -1 && parts[qtyIdx] ? parts[qtyIdx].trim() : '',
                         image1: convertGoogleDriveUrl(img1Idx !== -1 ? parts[img1Idx] : ''),
                         image2: convertGoogleDriveUrl(img2Idx !== -1 ? parts[img2Idx] : ''),
                         image3: convertGoogleDriveUrl(img3Idx !== -1 ? parts[img3Idx] : ''),
@@ -630,11 +632,12 @@
 
             paginatedItems.forEach(product => {
                 const mainImg = product.image1 && product.image1.trim() !== '' ? product.image1 : 'https://via.placeholder.com/500?text=Chưa+có+ảnh';
+                const quantityText = product.quantity !== '' ? ` | SL: ${product.quantity}` : '';
                 grid.innerHTML += `
                     <div class="product-card">
                         <img class="main-img" src="${mainImg}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/500?text=Lỗi+Ảnh'">
                         <div class="product-info">
-                            <span class="product-code">Mã: <b>${product.id}</b></span>
+                            <span class="product-code">Mã: <b>${product.id}</b>${quantityText}</span>
                             <h3 class="product-title">${product.name}</h3>
                             <p class="product-price">${product.price}</p>
                             <div class="btn-group">
@@ -816,12 +819,10 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const deposit = calculateDeposit(baseTotal); // Tiền cọc tính trên tổng gốc
+                const deposit = calculateDeposit(baseTotal);
                 
-                // Tổng tiền thuê hiển thị riêng CHỈ là tiền thuê đồ gốc (baseTotal)
                 const grandTotal = baseTotal; 
                 
-                // Số tiền còn lại = Tổng (tiền thuê gốc) - Cọc + Phụ thu
                 const receiveAmount = baseTotal - deposit + extraFee;
 
                 if (extraFee > 0) {
@@ -836,7 +837,6 @@
                     receiveAmountLabel.innerText = "Số tiền còn lại (Tổng - Cọc):";
                 }
 
-                // Cập nhật hiển thị trong modal giỏ hàng
                 document.getElementById('grandTotalDisplay').innerText = `${formatMoney(grandTotal)}đ`;
                 document.getElementById('depositDisplay').innerText = `${formatMoney(deposit)}đ`;
                 document.getElementById('receiveAmountDisplay').innerText = `${formatMoney(receiveAmount)}đ`;
