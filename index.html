@@ -318,6 +318,17 @@
                     <input type="tel" id="customerPhone" placeholder="Nhập chính xác số điện thoại của bạn" maxlength="10" inputmode="numeric" autocomplete="tel">
                     <small id="phoneError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng nhập đúng số điện thoại di động Việt Nam (10 chữ số, bắt đầu bằng số 0).</small>
                 </div>
+                <!-- BỔ SUNG 2 TRƯỜNG: NGÀY MƯỢN VÀ NGÀY TRẢ -->
+                <div class="form-group">
+                    <label for="rentalDate">Ngày mượn đồ (<span style="color: red;">*</span>):</label>
+                    <input type="date" id="rentalDate">
+                    <small id="rentalDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng chọn ngày mượn đồ.</small>
+                </div>
+                <div class="form-group">
+                    <label for="returnDate">Ngày trả đồ (<span style="color: red;">*</span>):</label>
+                    <input type="date" id="returnDate">
+                    <small id="returnDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng chọn ngày trả đồ (phải sau hoặc bằng ngày mượn).</small>
+                </div>
             </div>
 
             <div class="cart-total-footer" id="cartTotalFooter" style="display: none;">
@@ -715,8 +726,12 @@
             const footer = document.getElementById('cartTotalFooter');
             const infoSection = document.getElementById('customerInfoSection');
             const phoneError = document.getElementById('phoneError');
+            const rentalDateError = document.getElementById('rentalDateError');
+            const returnDateError = document.getElementById('returnDateError');
             
             phoneError.style.display = 'none';
+            rentalDateError.style.display = 'none';
+            returnDateError.style.display = 'none';
             container.innerHTML = ''; let total = 0;
             
             if (cart.length === 0) { 
@@ -749,23 +764,69 @@
             return vnfRegex.test(phone);
         }
 
+        // Hàm hỗ trợ format ngày sang định dạng DD/MM/YYYY cho đẹp mắt khi gửi tin nhắn
+        function formatDateVN(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateString;
+        }
+
         async function sendOrderToTelegram() {
             if (cart.length === 0) return;
             
             const nameInput = document.getElementById('customerName');
             const phoneInput = document.getElementById('customerPhone');
+            const rentalDateInput = document.getElementById('rentalDate');
+            const returnDateInput = document.getElementById('returnDate');
+            
             const phoneError = document.getElementById('phoneError');
+            const rentalDateError = document.getElementById('rentalDateError');
+            const returnDateError = document.getElementById('returnDateError');
             
             const nameVal = nameInput.value.trim();
             const phoneVal = phoneInput.value.trim();
+            const rentalVal = rentalDateInput.value;
+            const returnVal = returnDateInput.value;
 
+            let hasError = false;
+
+            // Kiểm tra số điện thoại
             if (!isValidVietnamesePhoneNumber(phoneVal)) {
                 phoneError.style.display = 'block';
                 phoneInput.focus();
-                return;
+                hasError = true;
             } else {
                 phoneError.style.display = 'none';
             }
+
+            // Kiểm tra ngày mượn
+            if (!rentalVal) {
+                rentalDateError.style.display = 'block';
+                if (!hasError) rentalDateInput.focus();
+                hasError = true;
+            } else {
+                rentalDateError.style.display = 'none';
+            }
+
+            // Kiểm tra ngày trả và logic ngày trả >= ngày mượn
+            if (!returnVal) {
+                returnDateError.innerText = 'Vui lòng chọn ngày trả đồ.';
+                returnDateError.style.display = 'block';
+                if (!hasError) returnDateInput.focus();
+                hasError = true;
+            } else if (rentalVal && returnVal && returnVal < rentalVal) {
+                returnDateError.innerText = 'Ngày trả phải sau hoặc bằng ngày mượn.';
+                returnDateError.style.display = 'block';
+                if (!hasError) returnDateInput.focus();
+                hasError = true;
+            } else {
+                returnDateError.style.display = 'none';
+            }
+
+            if (hasError) return;
             
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -779,7 +840,9 @@
 
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
-            msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n\n`;
+            msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n`;
+            msg += `📅 *Ngày mượn:* ${formatDateVN(rentalVal)}\n`;
+            msg += `📅 *Ngày trả:* ${formatDateVN(returnVal)}\n\n`;
             
             let t = 0;
             cart.forEach((i, idx) => { 
@@ -809,6 +872,8 @@
                     cart = [];
                     nameInput.value = '';
                     phoneInput.value = '';
+                    rentalDateInput.value = '';
+                    returnDateInput.value = '';
                     document.getElementById('cartCountBadge').innerText = 0;
                     closeModal('cartModal');
                 } else {
