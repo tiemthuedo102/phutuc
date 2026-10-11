@@ -691,12 +691,12 @@
             document.getElementById('orderProductId').value = p.id; 
             document.getElementById('orderProductName').innerText = p.name;
             
-            // Sửa lỗi xử lý chuẩn hóa giá tiền đúng với chuỗi hiển thị trên web
-            let rawPriceStr = String(p.price || '0');
-            // Lấy chính xác phần chuỗi số và dấu phân cách trước ký tự chữ cái đầu tiên (vd: loại bỏ chữ 'đ' hoặc ký tự sau số)
-            let matchPrice = rawPriceStr.match(/^[\d\.,]+/);
-            let cleanNumberStr = matchPrice ? matchPrice[0].replace(/[^0-9]/g, '') : rawPriceStr.replace(/[^0-9]/g, '');
-            currentNumericPrice = parseInt(cleanNumberStr, 10) || 0;
+            // Xử lý thông minh lấy đúng phần số trước dấu chữ cái đầu tiên (loại bỏ dấu chấm phân cách, chữ 'đ', khoảng trắng...)
+            let rawPriceStr = String(p.price || '0').trim();
+            // Tách lấy phần số và dấu phân cách trước chữ cái đầu tiên (ví dụ: "60.000 đ" -> lấy "60.000")
+            let matchPart = rawPriceStr.match(/^[0-9\.,]+/);
+            let numberOnly = matchPart ? matchPart[0].replace(/[^0-9]/g, '') : rawPriceStr.replace(/[^0-9]/g, '');
+            currentNumericPrice = parseInt(numberOnly, 10) || 0;
 
             document.getElementById('orderQty').value = 1;
             
