@@ -740,7 +740,7 @@
             return diffDays > 0 ? diffDays : 1;
         }
 
-        // Tính phụ phí: Nếu số ngày thuê > 3, mỗi ngày thêm tính 20% và làm tròn đến 10 nghìn
+        // Tính phụ thu: Nếu số ngày thuê > 3, mỗi ngày thêm tính 20% và làm tròn đến 10 nghìn
         function calculateExtraFee(baseTotal) {
             const days = calculateRentalDays();
             if (days <= 3) return { extraFee: 0, rentalDays: days };
@@ -751,7 +751,7 @@
             return { extraFee: roundedExtra, rentalDays: days };
         }
 
-        // Tính tiền cọc: 10% tổng hóa đơn (bao gồm cả phụ phí), làm tròn đến 10 nghìn chẵn
+        // Tính tiền cọc: 10% tổng hóa đơn (bao gồm cả phụ thu), làm tròn đến 10 nghìn chẵn
         function calculateDeposit(total) {
             let rawDeposit = total * 0.1;
             return Math.round(rawDeposit / 10000) * 10000;
@@ -793,7 +793,7 @@
 
                 if (extraFee > 0) {
                     extraFeeDetail.style.display = 'block';
-                    extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ phí phát sinh ${formatMoney(extraFee)}đ`;
+                    extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh ${formatMoney(extraFee)}đ`;
                 } else {
                     extraFeeDetail.style.display = 'none';
                 }
@@ -901,7 +901,7 @@
             });
             msg += `➖➖➖➖➖➖➖\n`;
             if (extraFee > 0) {
-                msg += `⏱ *Số ngày thuê:* ${rentalDays} ngày (Phụ phí: +${formatMoney(extraFee)}đ)\n`;
+                msg += `⏱ *Số ngày thuê:* ${rentalDays} ngày (Phụ thu: +${formatMoney(extraFee)}đ)\n`;
             }
             msg += `💰 *Tổng tiền thuê:* ${formatMoney(finalTotal)}đ *(đặt cọc ${formatMoney(deposit)}đ)*\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
