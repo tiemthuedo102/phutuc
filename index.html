@@ -136,7 +136,7 @@
         .cart-item-details { font-size: 13px; color: #666; display: flex; justify-content: space-between; align-items: center;}
         .remove-btn { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 12px; text-decoration: underline;}
         
-        .cart-total-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: bold; color: var(--primary); }
+        .cart-total-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--primary); display: flex; flex-direction: column; gap: 5px; font-size: 15px; font-weight: bold; color: var(--primary); }
 
         /* Style để xếp 2 trường ngày mượn / ngày trả trên cùng một hàng */
         .form-row-dates { display: flex; gap: 10px; }
@@ -221,9 +221,6 @@
 
         <div class="menu-items" id="menuItems">
             <button class="menu-btn active" id="btnAll" onclick="filterProducts('Tất cả')">Tất cả</button>
-            <!-- Menu & Submenu sản phẩm được render tự động từ Google Sheets -->
-
-            <!-- Thêm Menu Chính sách với 3 mục -->
             <div class="dropdown">
                 <button class="menu-btn">Chính sách ▾</button>
                 <div class="dropdown-content">
@@ -326,12 +323,12 @@
                 <div class="form-row-dates">
                     <div class="form-group">
                         <label for="rentalDate">Ngày mượn đồ (<span style="color: red;">*</span>):</label>
-                        <input type="date" id="rentalDate">
+                        <input type="date" id="rentalDate" onchange="openCart()">
                         <small id="rentalDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Chọn ngày mượn.</small>
                     </div>
                     <div class="form-group">
                         <label for="returnDate">Ngày trả đồ (<span style="color: red;">*</span>):</label>
-                        <input type="date" id="returnDate">
+                        <input type="date" id="returnDate" onchange="openCart()">
                         <small id="returnDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Chọn ngày trả.</small>
                     </div>
                 </div>
@@ -339,9 +336,12 @@
 
             <!-- PHẦN TỔNG KẾT HÓA ĐƠN -->
             <div class="cart-total-footer" id="cartTotalFooter" style="display: none;">
-                <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
+                </div>
+                <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
-            <button class="btn btn-solid" id="checkoutBtn" style="width: 100%; padding: 12px; margin-top: 20px; display: none;" onclick="sendOrderToTelegram()">📩 Gửi đơn qua chủ shop!<br>ĐT: 0365.630.354</br></button>
+            <button class="btn btn-solid" id="checkoutBtn" style="width: 100%; padding: 12px; margin-top: 20px; display: none;" onclick="sendOrderToTelegram()">📩 Gửi đơn qua chủ shop!<br>ĐT: 0365.630.354</button>
         </div>
     </div>
 
@@ -727,7 +727,31 @@
             closeModal('orderModal');
         }
 
-        // Tính tiền cọc: 10% tổng hóa đơn, làm tròn đến 10 nghìn chẵn
+        // Tính số ngày thuê dựa trên ngày mượn và ngày trả
+        function calculateRentalDays() {
+            const rentalVal = document.getElementById('rentalDate').value;
+            const returnVal = document.getElementById('returnDate').value;
+            if (!rentalVal || !returnVal) return 1;
+            
+            const d1 = new Date(rentalVal);
+            const d2 = new Date(returnVal);
+            const diffTime = d2 - d1;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24)) + 1; // Bao gồm cả ngày mượn và ngày trả
+            return diffDays > 0 ? diffDays : 1;
+        }
+
+        // Tính phụ phí: Nếu số ngày thuê > 3, mỗi ngày thêm tính 20% và làm tròn đến 10 nghìn
+        function calculateExtraFee(baseTotal) {
+            const days = calculateRentalDays();
+            if (days <= 3) return { extraFee: 0, rentalDays: days };
+            
+            const extraDays = days - 3;
+            let rawExtra = baseTotal * 0.2 * extraDays;
+            let roundedExtra = Math.round(rawExtra / 10000) * 10000;
+            return { extraFee: roundedExtra, rentalDays: days };
+        }
+
+        // Tính tiền cọc: 10% tổng hóa đơn (bao gồm cả phụ phí), làm tròn đến 10 nghìn chẵn
         function calculateDeposit(total) {
             let rawDeposit = total * 0.1;
             return Math.round(rawDeposit / 10000) * 10000;
@@ -741,11 +765,12 @@
             const phoneError = document.getElementById('phoneError');
             const rentalDateError = document.getElementById('rentalDateError');
             const returnDateError = document.getElementById('returnDateError');
+            const extraFeeDetail = document.getElementById('extraFeeDetail');
             
             phoneError.style.display = 'none';
             rentalDateError.style.display = 'none';
             returnDateError.style.display = 'none';
-            container.innerHTML = ''; let total = 0;
+            container.innerHTML = ''; let baseTotal = 0;
             
             if (cart.length === 0) { 
                 container.innerHTML = '<div style="text-align: center; color: #888; padding: 20px;">Giỏ hàng của bạn đang trống</div>'; 
@@ -758,14 +783,22 @@
                 infoSection.style.display = 'block';
                 
                 cart.forEach((i, idx) => { 
-                    total += i.itemTotal; 
+                    baseTotal += i.itemTotal; 
                     container.innerHTML += `<div class="cart-item"><div class="cart-item-head"><span>${i.name}</span><button class="remove-btn" onclick="removeItem(${idx})">Xóa</button></div><div class="cart-item-details"><span>Mã: ${i.id} | Size: ${i.size} | SL: ${i.qty}</span><span style="color: var(--primary); font-weight: bold;">${formatMoney(i.itemTotal)}đ</span></div></div>`; 
                 });
 
-                const deposit = calculateDeposit(total);
+                const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
+                const finalTotal = baseTotal + extraFee;
+                const deposit = calculateDeposit(finalTotal);
 
-                // Hiển thị tổng tiền kèm phần (đặt cọc ...) ngay bên cạnh
-                document.getElementById('grandTotalDisplay').innerHTML = `${formatMoney(total)}đ <span style="font-weight: normal; font-size: 13px; color: #e67e22;">(đặt cọc ${formatMoney(deposit)}đ)</span>`;
+                if (extraFee > 0) {
+                    extraFeeDetail.style.display = 'block';
+                    extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ phí phát sinh ${formatMoney(extraFee)}đ`;
+                } else {
+                    extraFeeDetail.style.display = 'none';
+                }
+
+                document.getElementById('grandTotalDisplay').innerHTML = `${formatMoney(finalTotal)}đ <span style="font-weight: normal; font-size: 13px; color: #e67e22;">(đặt cọc ${formatMoney(deposit)}đ)</span>`;
             }
             document.getElementById('cartModal').style.display = 'flex';
         }
@@ -851,21 +884,26 @@
             
             const timeString = `${hours}:${minutes}:${seconds}/${day}:${month}:${year}`;
 
-            let t = 0;
-            cart.forEach(i => { t += i.itemTotal; });
-            const deposit = calculateDeposit(t);
+            let baseTotal = 0;
+            cart.forEach(i => { baseTotal += i.itemTotal; });
+            const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
+            const finalTotal = baseTotal + extraFee;
+            const deposit = calculateDeposit(finalTotal);
 
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n`;
             msg += `📅 *Ngày mượn:* ${formatDateVN(rentalVal)}\n`;
-            msg += `📅 *Ngày trả:* ${formatDateVN(returnVal)}\n\n`;
+            msg += `📅 *Ngày trả:* ${formatDateVN(returnVal)} (Thuê ${rentalDays} ngày)\n\n`;
             
             cart.forEach((i, idx) => { 
                 msg += `${idx + 1}. *${i.name}*\n   - Mã: \`${i.id}\`\n   - Size: ${i.size}\n   - SL: ${i.qty}\n   - Thành tiền: ${formatMoney(i.itemTotal)}đ\n\n`; 
             });
             msg += `➖➖➖➖➖➖➖\n`;
-            msg += `💰 *Tổng tiền thuê:* ${formatMoney(t)}đ *(đặt cọc ${formatMoney(deposit)}đ)*\n\n`;
+            if (extraFee > 0) {
+                msg += `⏱ *Số ngày thuê:* ${rentalDays} ngày (Phụ phí: +${formatMoney(extraFee)}đ)\n`;
+            }
+            msg += `💰 *Tổng tiền thuê:* ${formatMoney(finalTotal)}đ *(đặt cọc ${formatMoney(deposit)}đ)*\n\n`;
             msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
 
             const btn = document.getElementById('checkoutBtn');
