@@ -135,7 +135,11 @@
         .cart-item-head { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; margin-bottom: 5px;}
         .cart-item-details { font-size: 13px; color: #666; display: flex; justify-content: space-between; align-items: center;}
         .remove-btn { color: #e74c3c; cursor: pointer; background: none; border: none; font-size: 12px; text-decoration: underline;}
-        .cart-total-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--primary); display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; color: var(--primary); }
+        
+        .cart-total-footer { margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--primary); display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+        .cart-row-sum { display: flex; justify-content: space-between; font-weight: bold; color: var(--text-main); }
+        .cart-row-deposit { display: flex; justify-content: space-between; font-weight: bold; color: #e67e22; }
+        .cart-row-grand { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; color: var(--primary); border-top: 1px dashed #ddd; padding-top: 6px; }
 
         /* ================= CUSTOM ALERT MODAL ================= */
         .custom-alert-box { max-width: 380px; text-align: center; padding: 30px 20px; }
@@ -318,9 +322,8 @@
                     <input type="tel" id="customerPhone" placeholder="Nhập chính xác số điện thoại của bạn" maxlength="10" inputmode="numeric" autocomplete="tel">
                     <small id="phoneError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng nhập đúng số điện thoại di động Việt Nam (10 chữ số, bắt đầu bằng số 0).</small>
                 </div>
-                <!-- BỔ SUNG 2 TRƯỜNG: NGÀY MƯỢN VÀ NGÀY TRẢ -->
                 <div class="form-group">
-                    <label for="rentalDate">Ngày nhận đồ (<span style="color: red;">*</span>):</label>
+                    <label for="rentalDate">Ngày mượn đồ (<span style="color: red;">*</span>):</label>
                     <input type="date" id="rentalDate">
                     <small id="rentalDateError" style="color: #e74c3c; display: none; margin-top: 4px; font-size: 12px;">Vui lòng chọn ngày mượn đồ.</small>
                 </div>
@@ -331,8 +334,17 @@
                 </div>
             </div>
 
+            <!-- PHẦN TỔNG KẾT HÓA ĐƠN: TỔNG TIỀN, TIỀN CỌC, TỔNG THANH TOÁN -->
             <div class="cart-total-footer" id="cartTotalFooter" style="display: none;">
-                <span>Tổng cộng:</span><span id="grandTotalDisplay">0đ</span>
+                <div class="cart-row-sum">
+                    <span>Tổng tiền thuê:</span><span id="grandTotalDisplay">0đ</span>
+                </div>
+                <div class="cart-row-deposit">
+                    <span>Tiền đặt cọc (10%):</span><span id="depositDisplay">0đ</span>
+                </div>
+                <div class="cart-row-grand">
+                    <span>Cần thanh toán ban đầu:</span><span id="finalPaymentDisplay">0đ</span>
+                </div>
             </div>
             <button class="btn btn-solid" id="checkoutBtn" style="width: 100%; padding: 12px; margin-top: 20px; display: none;" onclick="sendOrderToTelegram()">📩 Gửi đơn qua Telegram</button>
         </div>
@@ -720,6 +732,12 @@
             closeModal('orderModal');
         }
 
+        // Hàm tính tiền cọc: 10% tổng hóa đơn, làm tròn đến 10 nghìn chẵn
+        function calculateDeposit(total) {
+            let rawDeposit = total * 0.1;
+            return Math.round(rawDeposit / 10000) * 10000;
+        }
+
         function openCart() {
             const container = document.getElementById('cartItemsContainer'); 
             const btn = document.getElementById('checkoutBtn'); 
@@ -748,7 +766,13 @@
                     total += i.itemTotal; 
                     container.innerHTML += `<div class="cart-item"><div class="cart-item-head"><span>${i.name}</span><button class="remove-btn" onclick="removeItem(${idx})">Xóa</button></div><div class="cart-item-details"><span>Mã: ${i.id} | Size: ${i.size} | SL: ${i.qty}</span><span style="color: var(--primary); font-weight: bold;">${formatMoney(i.itemTotal)}đ</span></div></div>`; 
                 });
+
+                const deposit = calculateDeposit(total);
+                const finalPayment = total + deposit; // Hoặc điều chỉnh tùy theo logic thanh toán tổng cộng
+
                 document.getElementById('grandTotalDisplay').innerText = formatMoney(total) + 'đ';
+                document.getElementById('depositDisplay').innerText = formatMoney(deposit) + 'đ';
+                document.getElementById('finalPaymentDisplay').innerText = formatMoney(finalPayment) + 'đ';
             }
             document.getElementById('cartModal').style.display = 'flex';
         }
@@ -764,7 +788,6 @@
             return vnfRegex.test(phone);
         }
 
-        // Hàm hỗ trợ format ngày sang định dạng DD/MM/YYYY cho đẹp mắt khi gửi tin nhắn
         function formatDateVN(dateString) {
             if (!dateString) return '';
             const parts = dateString.split('-');
@@ -793,7 +816,6 @@
 
             let hasError = false;
 
-            // Kiểm tra số điện thoại
             if (!isValidVietnamesePhoneNumber(phoneVal)) {
                 phoneError.style.display = 'block';
                 phoneInput.focus();
@@ -802,7 +824,6 @@
                 phoneError.style.display = 'none';
             }
 
-            // Kiểm tra ngày mượn
             if (!rentalVal) {
                 rentalDateError.style.display = 'block';
                 if (!hasError) rentalDateInput.focus();
@@ -811,7 +832,6 @@
                 rentalDateError.style.display = 'none';
             }
 
-            // Kiểm tra ngày trả và logic ngày trả >= ngày mượn
             if (!returnVal) {
                 returnDateError.innerText = 'Vui lòng chọn ngày trả đồ.';
                 returnDateError.style.display = 'block';
@@ -838,18 +858,25 @@
             
             const timeString = `${hours}:${minutes}:${seconds}/${day}:${month}:${year}`;
 
+            let t = 0;
+            cart.forEach(i => { t += i.itemTotal; });
+            const deposit = calculateDeposit(t);
+            const finalPayment = t + deposit;
+
             let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *Số điện thoại KH:* \`${phoneVal}\`\n`;
             msg += `📅 *Ngày mượn:* ${formatDateVN(rentalVal)}\n`;
             msg += `📅 *Ngày trả:* ${formatDateVN(returnVal)}\n\n`;
             
-            let t = 0;
             cart.forEach((i, idx) => { 
-                t += i.itemTotal; 
                 msg += `${idx + 1}. *${i.name}*\n   - Mã: \`${i.id}\`\n   - Size: ${i.size}\n   - SL: ${i.qty}\n   - Thành tiền: ${formatMoney(i.itemTotal)}đ\n\n`; 
             });
-            msg += `➖➖➖➖➖➖➖\n💰 *TỔNG CỘNG: ${formatMoney(t)}đ*\n\nShop kiểm tra lịch và liên hệ khách nhé!`;
+            msg += `➖➖➖➖➖➖➖\n`;
+            msg += `💰 *Tổng tiền thuê:* ${formatMoney(t)}đ\n`;
+            msg += `🔒 *Tiền đặt cọc (10%):* ${formatMoney(deposit)}đ\n`;
+            msg += `💳 *Cần thanh toán ban đầu:* ${formatMoney(finalPayment)}đ\n\n`;
+            msg += `Shop kiểm tra lịch và liên hệ khách nhé!`;
 
             const btn = document.getElementById('checkoutBtn');
             btn.innerText = "Đang gửi...";
