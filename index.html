@@ -343,8 +343,11 @@
                 <div style="display: flex; justify-content: space-between; color: #e67e22; font-size: 14px;">
                     <span>Đặt cọc (-):</span><span id="depositDisplay">0đ</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 14px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px;">
-                    <span>Số tiền còn lại (Tổng - Cọc + phụ thu):</span><span id="receiveAmountDisplay">0đ</span>
+                <div style="display: flex; justify-content: space-between; color: #e67e22; font-size: 14px; display: none;" id="extraFeeLine">
+                    <span>Phụ thu phát sinh (+):</span><span id="extraFeeDisplay">0đ</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #27ae60; font-size: 15px; border-top: 1px dashed #ccc; padding-top: 6px; margin-top: 2px; font-weight: bold;">
+                    <span>Số tiền còn lại (Tổng - Cọc + Phụ thu):</span><span id="receiveAmountDisplay">0đ</span>
                 </div>
                 <div id="extraFeeDetail" style="font-size: 13px; color: #e67e22; font-weight: normal; display: none;"></div>
             </div>
@@ -787,6 +790,8 @@
             const phoneError = document.getElementById('phoneError');
             const rentalDateError = document.getElementById('rentalDateError');
             const returnDateError = document.getElementById('returnDateError');
+            const extraFeeLine = document.getElementById('extraFeeLine');
+            const extraFeeDisplay = document.getElementById('extraFeeDisplay');
             const extraFeeDetail = document.getElementById('extraFeeDetail');
             
             phoneError.style.display = 'none';
@@ -810,16 +815,19 @@
                 });
 
                 const { extraFee, rentalDays } = calculateExtraFee(baseTotal);
-                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê (Tổng gốc + phụ thu)
+                const finalTotal = baseTotal + extraFee; // Tổng tiền thuê
                 const deposit = calculateDeposit(baseTotal); // Tiền cọc tính trên tổng gốc
                 
-                // Công thức chuẩn theo yêu cầu: Số tiền còn lại = Tổng - Cọc + phụ thu
+                // Công thức chuẩn: Số tiền còn lại = Tổng - Cọc + phụ thu
                 const receiveAmount = baseTotal - deposit + extraFee;
 
                 if (extraFee > 0) {
+                    extraFeeLine.style.display = 'flex';
+                    extraFeeDisplay.innerText = `+${formatMoney(extraFee)}đ`;
                     extraFeeDetail.style.display = 'block';
                     extraFeeDetail.innerHTML = `⏱ Thuê ${rentalDays} ngày (> 3 ngày): Phụ thu phát sinh +${formatMoney(extraFee)}đ`;
                 } else {
+                    extraFeeLine.style.display = 'none';
                     extraFeeDetail.style.display = 'none';
                 }
 
@@ -954,7 +962,7 @@
 
                 const data = await response.json();
                 if (data.ok) {
-                    showCustomAlert("Khách hàng gửi đơn hàng thành công tới<br><b>ĐT Shop: 0365 630 354</b><br>Shop sẽ gọi lại ngay cho quý khách hàng!");
+                    showCustomAlert("Khách hàng gửi đơn hàng thành công tới<br><b>SĐT Shop: 0365 630 354</b><br>Shop sẽ gọi lại ngay cho quý khách hàng!");
                     cart = [];
                     nameInput.value = '';
                     phoneInput.value = '';
