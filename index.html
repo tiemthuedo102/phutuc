@@ -140,7 +140,7 @@
         /* ================= CUSTOM ALERT MODAL ================= */
         .custom-alert-box { max-width: 380px; text-align: center; padding: 30px 20px; }
         .custom-alert-title { color: var(--primary); font-size: 20px; font-weight: bold; margin-top: 0; margin-bottom: 12px; }
-        .custom-alert-msg { font-size: 15px; line-height: 1.6; color: var(--text-main); margin-bottom: 25px; }
+        .custom-alert-msg { font-size: 15px; line-height: 1.6; color: var(--text-main); margin-bottom: 25px; text-align: left; }
 
         /* ================= RESPONSIVE ================= */
         @media screen and (max-width: 992px) {
@@ -216,7 +216,17 @@
 
         <div class="menu-items" id="menuItems">
             <button class="menu-btn active" id="btnAll" onclick="filterProducts('Tất cả')">Tất cả</button>
-            <!-- Menu & Submenu được render tự động từ Google Sheets -->
+            <!-- Menu & Submenu sản phẩm được render tự động từ Google Sheets -->
+
+            <!-- Thêm Menu Chính sách với 3 mục -->
+            <div class="dropdown">
+                <button class="menu-btn">Chính sách ▾</button>
+                <div class="dropdown-content">
+                    <a onclick="showPolicyDetail('Hướng dẫn đặt thuê', '1. Chọn sản phẩm cần thuê trên website hoặc gửi mẫu trực tiếp cho tiệm.<br>2. Chọn Size và số lượng phù hợp.<br>3. Thêm vào giỏ hàng và điền thông tin liên hệ để gửi đơn.<br>4. Tiệm sẽ liên hệ xác nhận lịch thuê và chốt đơn cho bạn.')">📋 Hướng dẫn đặt thuê</a>
+                    <a onclick="showPolicyDetail('Chính sách đặt cọc', '1. Khách hàng vui lòng đặt cọc trước một phần giá trị hoặc hiện vật/giấy tờ tùy thân tùy theo thỏa thuận khi nhận đồ.<br>2. Tiền cọc sẽ được hoàn trả đầy đủ ngay sau khi khách hàng trả lại đồ nguyên vẹn và đúng hạn.')">💰 Chính sách đặt cọc</a>
+                    <a onclick="showPolicyDetail('Quy định hoàn trả đồ', '1. Trả đồ đúng thời hạn đã cam kết trong đơn thuê.<br>2. Trang phục và đạo cụ phải được giữ gìn sạch sẽ, không hư hỏng, rách hay dính bẩn khó giặt.<br>3. Mọi hư hỏng hoặc mất mát phát sinh sẽ được giải quyết theo mức độ thiệt hại thực tế.')">🔄 Quy định hoàn trả đồ</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -242,9 +252,9 @@
             </div>
             <div class="footer-col">
                 <h3>Chính Sách</h3>
-                <a href="#">📋 Hướng dẫn đặt thuê</a>
-                <a href="#">💰 Chính sách đặt cọc</a>
-                <a href="#">🔄 Quy định hoàn trả đồ</a>
+                <a onclick="showPolicyDetail('Hướng dẫn đặt thuê', '1. Chọn sản phẩm cần thuê trên website hoặc gửi mẫu trực tiếp cho tiệm.<br>2. Chọn Size và số lượng phù hợp.<br>3. Thêm vào giỏ hàng và điền thông tin liên hệ để gửi đơn.<br>4. Tiệm sẽ liên hệ xác nhận lịch thuê và chốt đơn cho bạn.')">📋 Hướng dẫn đặt thuê</a>
+                <a onclick="showPolicyDetail('Chính sách đặt cọc', '1. Khách hàng vui lòng đặt cọc trước một phần giá trị hoặc hiện vật/giấy tờ tùy thân tùy theo thỏa thuận khi nhận đồ.<br>2. Tiền cọc sẽ được hoàn trả đầy đủ ngay sau khi khách hàng trả lại đồ nguyên vẹn và đúng hạn.')">💰 Chính sách đặt cọc</a>
+                <a onclick="showPolicyDetail('Quy định hoàn trả đồ', '1. Trả đồ đúng thời hạn đã cam kết trong đơn thuê.<br>2. Trang phục và đạo cụ phải được giữ gìn sạch sẽ, không hư hỏng, rách hay dính bẩn khó giặt.<br>3. Mọi hư hỏng hoặc mất mát phát sinh sẽ được giải quyết theo mức độ thiệt hại thực tế.')">🔄 Quy định hoàn trả đồ</a>
             </div>
             <div class="footer-col">
                 <h3>Liên Hệ</h3>
@@ -342,17 +352,21 @@
         let currentActiveSubcategory = null;
         
         let currentPage = 1;
-        const itemsPerPage = 16; // Cấu hình 30 sản phẩm/trang
+        const itemsPerPage = 16;
         
         function formatMoney(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
         function showCustomAlert(message) {
-            document.getElementById('customAlertText').innerText = message;
+            document.getElementById('customAlertText').innerHTML = message;
             document.getElementById('customAlertModal').style.display = 'flex';
         }
 
         function closeCustomAlert() {
             document.getElementById('customAlertModal').style.display = 'none';
+        }
+
+        function showPolicyDetail(title, content) {
+            showCustomAlert(`<b>📌 ${title}</b><br><br>${content}`);
         }
 
         function convertGoogleDriveUrl(url) {
@@ -459,7 +473,9 @@
 
         function buildDynamicMenu() {
             const menuItemsContainer = document.getElementById('menuItems');
-            menuItemsContainer.innerHTML = '<button class="menu-btn active" id="btnAll" onclick="filterProducts(\'Tất cả\')">Tất cả</button>';
+            
+            // Giữ lại nút Tất cả
+            let menuHTML = '<button class="menu-btn active" id="btnAll" onclick="filterProducts(\'Tất cả\')">Tất cả</button>';
 
             const categoryMap = {};
             allProducts.forEach(p => {
@@ -472,33 +488,39 @@
                 }
             });
 
+            // Tạo các danh mục sản phẩm động từ Google Sheets
+            let dynamicCategoriesHTML = '';
             for (const [cat, subcats] of Object.entries(categoryMap)) {
-                const dropdownDiv = document.createElement('div');
-                dropdownDiv.className = 'dropdown';
-
-                const mainBtn = document.createElement('button');
-                mainBtn.className = 'menu-btn';
-                mainBtn.innerHTML = `${cat} ▾`;
-                mainBtn.onclick = () => filterProducts(cat);
-                dropdownDiv.appendChild(mainBtn);
-
+                let subcatsHTML = '';
                 if (subcats.size > 0) {
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'dropdown-content';
+                    subcatsHTML += '<div class="dropdown-content">';
                     subcats.forEach(subcat => {
-                        const subA = document.createElement('a');
-                        subA.innerText = subcat;
-                        subA.onclick = (e) => {
-                            e.stopPropagation();
-                            filterProducts(cat, subcat);
-                        };
-                        contentDiv.appendChild(subA);
+                        subcatsHTML += `<a onclick="event.stopPropagation(); filterProducts('${cat}', '${subcat}')">${subcat}</a>`;
                     });
-                    dropdownDiv.appendChild(contentDiv);
+                    subcatsHTML += '</div>';
                 }
-
-                menuItemsContainer.appendChild(dropdownDiv);
+                dynamicCategoriesHTML += `
+                    <div class="dropdown">
+                        <button class="menu-btn" onclick="filterProducts('${cat}')">${cat} ▾</button>
+                        ${subcatsHTML}
+                    </div>
+                `;
             }
+
+            // Gắn danh mục sản phẩm và menu Chính sách vào menu-items
+            menuHTML += dynamicCategoriesHTML;
+            menuHTML += `
+                <div class="dropdown">
+                    <button class="menu-btn">Chính sách ▾</button>
+                    <div class="dropdown-content">
+                        <a onclick="showPolicyDetail('Hướng dẫn đặt thuê', '1. Chọn sản phẩm cần thuê trên website hoặc gửi mẫu trực tiếp cho tiệm.<br>2. Chọn Size và số lượng phù hợp.<br>3. Thêm vào giỏ hàng và điền thông tin liên hệ để gửi đơn.<br>4. Tiệm sẽ liên hệ xác nhận lịch thuê và chốt đơn cho bạn.')">📋 Hướng dẫn đặt thuê</a>
+                        <a onclick="showPolicyDetail('Chính sách đặt cọc', '1. Khách hàng vui lòng đặt cọc trước một phần giá trị hoặc hiện vật/giấy tờ tùy thân tùy theo thỏa thuận khi nhận đồ.<br>2. Tiền cọc sẽ được hoàn trả đầy đủ ngay sau khi khách hàng trả lại đồ nguyên vẹn và đúng hạn.')">💰 Chính sách đặt cọc</a>
+                        <a onclick="showPolicyDetail('Quy định hoàn trả đồ', '1. Trả đồ đúng thời hạn đã cam kết trong đơn thuê.<br>2. Trang phục và đạo cụ phải được giữ gìn sạch sẽ, không hư hỏng, rách hay dính bẩn khó giặt.<br>3. Mọi hư hỏng hoặc mất mát phát sinh sẽ được giải quyết theo mức độ thiệt hại thực tế.')">🔄 Quy định hoàn trả đồ</a>
+                    </div>
+                </div>
+            `;
+
+            menuItemsContainer.innerHTML = menuHTML;
         }
 
         function toggleMobileMenu() {
@@ -511,7 +533,7 @@
         function filterProducts(category, subcategory = null) {
             currentActiveCategory = category;
             currentActiveSubcategory = subcategory;
-            currentPage = 1; // Reset về trang 1 khi đổi danh mục
+            currentPage = 1;
 
             const btnAll = document.getElementById('btnAll');
             if (btnAll) btnAll.classList.remove('active');
@@ -528,7 +550,7 @@
         }
 
         function filterProductsByKeyword() {
-            currentPage = 1; // Reset về trang 1 khi tìm kiếm
+            currentPage = 1;
             renderFilteredProducts();
         }
 
@@ -541,7 +563,6 @@
             
             let filtered = allProducts;
 
-            // 1. Lọc theo danh mục
             if (currentActiveCategory !== 'Tất cả') {
                 filtered = filtered.filter(p => p.category === currentActiveCategory);
                 if (currentActiveSubcategory) {
@@ -549,7 +570,6 @@
                 }
             }
 
-            // 2. Lọc theo từ khóa (Mã ID hoặc Tên sản phẩm)
             if (keyword !== '') {
                 filtered = filtered.filter(p => 
                     p.id.toLowerCase().includes(keyword) || 
@@ -565,7 +585,6 @@
                 return;
             }
 
-            // Tính toán phân trang
             const totalPages = Math.ceil(filtered.length / itemsPerPage);
             if (currentPage > totalPages) currentPage = totalPages;
             
@@ -591,14 +610,10 @@
                 `;
             });
 
-            // Render nút phân trang nếu tổng số trang > 1
             if (totalPages > 1) {
                 let paginationHTML = '';
-                
-                // Nút Trang trước (Previous)
                 paginationHTML += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">❮ Trước</button>`;
 
-                // Các nút số trang
                 for (let i = 1; i <= totalPages; i++) {
                     if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                         paginationHTML += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
@@ -607,9 +622,7 @@
                     }
                 }
 
-                // Nút Trang sau (Next)
                 paginationHTML += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Sau ❯</button>`;
-                
                 paginationContainer.innerHTML = paginationHTML;
             }
         }
@@ -617,7 +630,6 @@
         function changePage(page) {
             currentPage = page;
             renderFilteredProducts();
-            // Cuộn mượt lên đầu danh sách sản phẩm khi chuyển trang
             document.getElementById('menu-bar').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -796,7 +808,7 @@
 
                 const data = await response.json();
                 if (data.ok) {
-                    showCustomAlert("Khách hàng gửi đơn hàng thành công tới chủ shop 0984.026.995\nShop sẽ gọi lại ngay cho quý khách hàng!");
+                    showCustomAlert("Khách hàng gửi đơn hàng thành công tới chủ shop 0984.026.995<br>Shop sẽ gọi lại ngay cho quý khách hàng!");
                     cart = [];
                     nameInput.value = '';
                     phoneInput.value = '';
