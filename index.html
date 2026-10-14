@@ -24,7 +24,7 @@
         .hero-banner {
             background: linear-gradient(135deg, rgba(219, 112, 147, 0.85), rgba(255, 182, 193, 0.95)), 
                         url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80') center/cover no-repeat;
-            padding: 80px 20px; text-align: center; color: var(--white);
+            padding: 20px 5px; text-align: center; color: var(--white);
         }
         .hero-banner h1 { margin: 0 0 15px 0; font-size: 38px; font-weight: 800; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
         .hero-banner p { margin: 0 auto 30px; font-size: 18px; max-width: 700px; line-height: 1.6; }
@@ -80,10 +80,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; transition: 0.3s;
         }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(219, 112, 147, 0.2); }
-        
-        /* ĐÃ SỬA TẠI ĐÂY: object-fit: contain */
-        .product-card img.main-img { width: 100%; height: 260px; object-fit: contain; border-bottom: 1px solid var(--light-pink); transition: 0.3s; background-color: #f9f9f9; }
-        
+        .product-card img.main-img { width: 100%; height: 260px; object-fit: cover; border-bottom: 1px solid var(--light-pink); transition: 0.3s; background-color: #f9f9f9; }
         .product-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
         .product-code { font-size: 12px; color: #888; margin-bottom: 4px; font-weight: 600; }
         .product-title { font-size: 16px; font-weight: bold; margin: 0 0 8px; line-height: 1.4; }
@@ -205,18 +202,20 @@
             .btn { padding: 12px; font-size: 14px; }
         }
         .banner-img {
-            width: 100%; /* Chiều rộng chiếm 100% màn hình */
-            height: 400px; /* Chiều cao cố định của banner (có thể thay đổi) */
-            object-fit: cover; /* Giúp ảnh không bị méo khi kéo giãn */
-            display: block; /* Xóa khoảng trắng thừa dưới chân ảnh */
-        }
+  width: 100%; /* Chiều rộng chiếm 100% màn hình */
+  height: 400px; /* Chiều cao cố định của banner (có thể thay đổi) */
+  object-fit: cover; /* Giúp ảnh không bị méo khi kéo giãn */
+  display: block; /* Xóa khoảng trắng thừa dưới chân ảnh */
+}
     </style>
 </head>
 <body>
 
      <header class="hero-banner">
         <h1>Tiệm thuê đồ 102</h1>
-        <p>Tự tin tỏa sáng trong mọi khung hình với hàng trăm mẫu trang phục đa dạng, cập nhật xu hướng mới nhất và đạo cụ chuyên nghiệp tại: <p><img src="https://lh3.googleusercontent.com/d/1UH-0M_gRNMqBUZS7suB5q0js4JKbnJ-Y=w100" alt="Map" style="width: 50px; height: 50px; vertical-align: middle; margin-right: 4px;"> <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p></p>
+        <p>Tự tin tỏa sáng trong mọi khung hình với hàng trăm mẫu trang phục đa dạng, cập nhật xu hướng mới nhất và đạo cụ chuyên nghiệp tại: <p> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="56" height="36" fill="#ea4335">
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+</svg><a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p></p>
         <button class="btn-discover" onclick="document.getElementById('menu-bar').scrollIntoView({behavior: 'smooth'})">✨ Khám Phá Ngay</button>
     </header>
 
@@ -272,7 +271,9 @@
             </div>
             <div class="footer-col">
                 <h3>Liên Hệ</h3>
-                <p><img src="https://lh3.googleusercontent.com/d/1UH-0M_gRNMqBUZS7suB5q0js4JKbnJ-Y=w100" alt="Map" style="width: 18px; height: 18px; vertical-align: middle; margin-right: 4px;"> <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">
+                <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="36" fill="#ea4335">
+  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+</svg> <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">
 Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 <p>👤 Chủ shop: <strong>Trịnh Thị Phương</strong></p>
                 <p>📞 Hotline: <strong>0365 630 354</strong></p>
