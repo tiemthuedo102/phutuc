@@ -80,10 +80,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; transition: 0.3s;
         }
         .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(219, 112, 147, 0.2); }
-        
-        /* ĐÃ FIX Ở ĐÂY: Thêm contain, padding và box-sizing */
         .product-card img.main-img { width: 100%; height: 260px; object-fit: contain; padding: 5px; box-sizing: border-box; border-bottom: 1px solid var(--light-pink); transition: 0.3s; background-color: #f9f9f9; }
-        
         .product-info { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
         .product-code { font-size: 12px; color: #888; margin-bottom: 4px; font-weight: 600; }
         .product-title { font-size: 16px; font-weight: bold; margin: 0 0 8px; line-height: 1.4; }
@@ -126,11 +123,22 @@
         .modal-content { background: var(--white); width: 90%; max-width: 500px; border-radius: 12px; padding: 25px; position: relative; max-height: 85vh; overflow-y: auto; }
         .close-btn { position: absolute; top: 10px; right: 15px; font-size: 32px; cursor: pointer; color: #999; line-height: 1; font-weight: bold; }
         .modal-title { color: var(--primary); margin-top: 0; margin-bottom: 15px; font-size: 18px; }
-        .slideshow-container { position: relative; border-radius: 8px; overflow: hidden; background: #000; }
+        
+        /* ĐÃ FIX: Nền album sáng, sang trọng và có chiều sâu */
+        .slideshow-container { 
+            position: relative; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            background: linear-gradient(135deg, #ffffff 0%, #f5eef0 100%); 
+            box-shadow: inset 0 0 25px rgba(219, 112, 147, 0.15); 
+            border: 1px solid var(--light-pink);
+        }
+        
         .slide-img { width: 100%; height: 350px; object-fit: contain; display: none; }
         .slide-img.active { display: block; }
-        .slide-nav { cursor: pointer; position: absolute; top: 50%; padding: 12px; margin-top: -20px; color: white; font-weight: bold; font-size: 16px; border: none; background: rgba(0,0,0,0.5); z-index: 10; }
-        .slide-nav.prev { left: 0; } .slide-nav.next { right: 0; }
+        .slide-nav { cursor: pointer; position: absolute; top: 50%; padding: 12px; margin-top: -20px; color: white; font-weight: bold; font-size: 16px; border: none; background: rgba(0,0,0,0.5); z-index: 10; border-radius: 4px; transition: 0.3s; }
+        .slide-nav:hover { background: rgba(219, 112, 147, 0.8); }
+        .slide-nav.prev { left: 5px; } .slide-nav.next { right: 5px; }
         .slide-counter { position: absolute; bottom: 10px; right: 10px; color: white; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 10px; font-size: 12px; z-index: 10; }
 
         .form-group { margin-bottom: 15px; }
