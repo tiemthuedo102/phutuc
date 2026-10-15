@@ -23,20 +23,20 @@
         /* ================= BANNER ================= */
         .hero-banner {
             width: 100%;
-            max-width: 1200px;
-            margin: 15px auto;
+            max-width: 100%;
+            margin: 10px auto;
             display: block;
             cursor: pointer;
             text-decoration: none;
             box-sizing: border-box;
             padding: 0px;
+            overflow: hidden;
         }
 
         .hero-banner img {
             width: 100%;
             height: auto;
             display: block;
-            object-fit: contain;
             border-radius: 0px;
         }
 
@@ -488,7 +488,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 const lines = csv.trim().split('\n');
                 if (lines.length < 2) throw new Error('File trống');
 
-                // ĐỌC BANNER TỪ Ô M2 (Dòng 2, Index 1) VÀ Ô M3 (Dòng 3, Index 2) CỘT M (Cột 13, Index 12)
+                // ĐỌC BANNER TỪ Ô M2 VÀ Ô M3 CỘT M
                 try {
                     if (lines.length >= 2) {
                         const row2Parts = parseCSVLine(lines[1] || '');
