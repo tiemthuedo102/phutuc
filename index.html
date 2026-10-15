@@ -217,7 +217,7 @@
 </head>
 <body>
 
-    <!-- BANNER ĐÃ XÓA CHỮ VÀ GẮN LINK CUỘN XUỐNG NỘI DUNG -->
+    <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner"></a>
 
     <nav class="menu-bar" id="menu-bar">
@@ -379,6 +379,11 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
 
     <!-- SCRIPT -->
     <script>
+        // Tắt tính năng tự khôi phục vị trí cuộn mặc định của trình duyệt để luôn về đầu trang khi reload
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+
         const TELEGRAM_BOT_TOKEN = '8790638337:AAEgRof-186F7hqK0lw_R8n5xsHU8OVSmhM'; 
         const TELEGRAM_CHAT_ID = '-1004400070779';
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XpWA7sfpO02mzGvICo7JBR52jPxFFtYeennUcYD3PTU/edit?usp=sharing';
@@ -1041,6 +1046,8 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         function closeOnOutside(e, id) { if (e.target.id === id) closeModal(id); }
 
         window.onload = () => {
+            // Cuộn ngay lên đầu trang khi tải xong
+            window.scrollTo(0, 0);
             fetchSheetData();
         };
     </script>
