@@ -26,8 +26,8 @@
             display: block;
             cursor: pointer;
             text-decoration: none;
-            margin-top: 15px;    /* Chỉnh lề trên (khoảng cách phía trên banner) */
-            margin-bottom: 15px; /* Chỉnh lề dưới */
+            margin-top: 15px;    
+            margin-bottom: 15px; 
         }
 
         .hero-banner img {
@@ -37,7 +37,7 @@
             object-fit: contain;
         }
 
-        /* Ẩn hiện banner theo thiết bị nếu dùng 2 ảnh khác nhau */
+        /* Mặc định trên Máy tính: Hiện banner PC, Ẩn banner ĐT */
         .banner-pc { display: block; }
         .banner-mobile { display: none; }
 
@@ -179,9 +179,9 @@
         }
 
         @media screen and (max-width: 768px) {
-            /* Hiển thị ảnh banner ĐT và ẩn ảnh banner PC */
-            .banner-pc { display: none; }
-            .banner-mobile { display: block; }
+            /* Ẩn banner PC, Hiện banner Điện thoại */
+            .banner-pc { display: none !important; }
+            .banner-mobile { display: block !important; }
 
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img.main-img { height: 180px; }
@@ -225,10 +225,10 @@
 
     <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner">
-        <!-- Banner dành cho Máy tính (PC) -->
-        <img class="banner-pc" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner Tiệm thuê đồ 102 PC">
-        <!-- Banner dành cho Điện thoại (Mobile) -->
-        <img class="banner-mobile" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Tiệm thuê đồ 102 Mobile">
+        <!-- Banner dành riêng cho Máy tính (PC) -->
+        <img class="banner-pc" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner PC">
+        <!-- Banner dành riêng cho Điện thoại (Mobile) -->
+        <img class="banner-mobile" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Mobile">
     </a>
 
     <nav class="menu-bar" id="menu-bar">
