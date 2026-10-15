@@ -40,9 +40,9 @@
             border-radius: 8px;
         }
 
-        /* Mặc định trên Máy tính: Hiện banner PC, Ẩn banner ĐT */
-        .banner-pc { display: block; }
-        .banner-mobile { display: none; }
+        /* KHAI BÁO RÕ RÀNG TRÊN MÁY TÍNH (PC) */
+        .banner-pc { display: block !important; }
+        .banner-mobile { display: none !important; }
 
         .btn-discover {
             display: none;
@@ -182,7 +182,7 @@
         }
 
         @media screen and (max-width: 768px) {
-            /* Ẩn hoàn toàn banner PC, Chỉ hiện banner Điện thoại */
+            /* ẨN HOÀN TOÀN BANNER PC, CHỈ HIỆN BANNER MOBILE BẰNG !IMPORTANT */
             .banner-pc { display: none !important; }
             .banner-mobile { display: block !important; }
 
