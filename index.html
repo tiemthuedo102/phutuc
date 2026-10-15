@@ -32,19 +32,18 @@
         .hero-banner {
             display: block;
             width: 100%;
-            max-width: 100vw;
-            margin: 0 auto;
+            width: 100vw;
+            margin: 0;
             padding: 0;
             border: none;
             text-decoration: none;
             background-color: var(--light-pink);
             overflow: hidden;
+            line-height: 0;
         }
 
         .hero-banner picture {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            display: block;
             width: 100%;
             margin: 0;
             padding: 0;
@@ -53,12 +52,10 @@
         .hero-banner img {
             display: block;
             width: 100% !important;
-            max-width: 100% !important;
             height: auto !important;
-            max-height: none !important;
-            object-fit: contain !important;
-            object-position: center center !important;
-            margin: 0 auto;
+            max-width: none !important;
+            object-fit: cover !important;
+            margin: 0;
             border: none;
         }
 
@@ -236,12 +233,10 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG (Sử dụng trực tiếp link ảnh mới của bạn) -->
+    <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
-            <!-- Ảnh dùng cho Điện thoại (Mobile) -->
             <source media="(max-width: 768px)" srcset="https://i.ibb.co/6ctQ1Nx2/baner-DT.png">
-            <!-- Ảnh mặc định dùng cho Máy tính (PC) -->
             <img src="https://i.ibb.co/cK7wnsbZ/baner-PC.png" alt="Tiệm thuê đồ 102">
         </picture>
     </a>
