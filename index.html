@@ -28,34 +28,35 @@
             overflow-x: hidden;
         }
 
-        /* ================= BANNER TỰ ĐỘNG CO GIÃN 100% ================= */
+        /* ================= BANNER THU GỌN THEO BODY / CONTAINER ================= */
         .hero-banner {
             display: block;
             width: 100%;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
+            max-width: 1200px; /* Thu hẹp đồng bộ với phần container bên dưới */
+            margin: 20px auto 10px auto; /* Canh giữa và tạo khoảng cách trên dưới */
+            padding: 0 15px; /* Tạo lề hai bên trên màn hình nhỏ */
             border: none;
             text-decoration: none;
-            background-color: var(--light-pink);
+            background-color: transparent;
             overflow: hidden;
-            line-height: 0;
+            box-sizing: border-box;
         }
 
         .hero-banner picture {
             display: block;
             width: 100%;
-            margin: 0;
-            padding: 0;
+            border-radius: 12px; /* Bo góc banner cho đẹp mắt và đồng bộ với card sản phẩm */
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Đổ bóng nhẹ */
         }
 
         .hero-banner img {
             display: block;
             width: 100% !important;
             height: auto !important;
-            max-width: none !important;
-            object-fit: cover !important;
-            margin: 0;
+            max-width: 100% !important;
+            object-fit: contain !important;
+            margin: 0 auto;
             border: none;
         }
 
@@ -193,6 +194,9 @@
         }
 
         @media screen and (max-width: 768px) {
+            .hero-banner { padding: 0 10px; margin: 10px auto 5px auto; }
+            .hero-banner picture { border-radius: 8px; }
+
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img.main-img { height: 180px; }
             .product-info { padding: 10px; }
@@ -233,7 +237,7 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG -->
+    <!-- BANNER ĐẦU TRANG (Đã thu gọn bằng khung body/container) -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
             <source media="(max-width: 768px)" srcset="https://i.ibb.co/6ctQ1Nx2/baner-DT.png">
