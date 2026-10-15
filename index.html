@@ -28,7 +28,7 @@
             overflow-x: hidden;
         }
 
-        /* ================= BANNER TỰ ĐỘNG CO GIÃN - KHÔNG BAO GIỜ CẮT ẢNH ================= */
+        /* ================= BANNER TỰ ĐỘNG CO GIÃN 100% ================= */
         .hero-banner {
             display: block;
             width: 100%;
@@ -56,7 +56,7 @@
             max-width: 100% !important;
             height: auto !important;
             max-height: none !important;
-            object-fit: contain !important; /* Đảm bảo hiển thị trọn vẹn 100% ảnh, không bao giờ cắt chữ */
+            object-fit: contain !important;
             object-position: center center !important;
             margin: 0 auto;
             border: none;
@@ -236,13 +236,13 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG -->
+    <!-- BANNER ĐẦU TRANG (Sử dụng trực tiếp link ảnh mới của bạn) -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
-            <!-- Ảnh dùng cho Điện thoại (Mobile) - Lấy từ ô M3 -->
-            <source media="(max-width: 768px)" id="bannerMobileSource" srcset="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0">
-            <!-- Ảnh mặc định dùng cho Máy tính (PC) - Lấy từ ô M2 -->
-            <img id="bannerPcImg" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Tiệm thuê đồ 102">
+            <!-- Ảnh dùng cho Điện thoại (Mobile) -->
+            <source media="(max-width: 768px)" srcset="https://i.ibb.co/6ctQ1Nx2/baner-DT.png">
+            <!-- Ảnh mặc định dùng cho Máy tính (PC) -->
+            <img src="https://i.ibb.co/cK7wnsbZ/baner-PC.png" alt="Tiệm thuê đồ 102">
         </picture>
     </a>
 
@@ -441,7 +441,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             showCustomAlert(`<b>📌 ${title}</b><br><br>${content}`);
         }
 
-        function convertGoogleDriveUrl(url, isBanner = false) {
+        function convertGoogleDriveUrl(url) {
             if (!url) return '';
             const cleanUrl = url.trim();
             if (!cleanUrl.includes('drive.google.com') && !cleanUrl.includes('googleusercontent.com')) return cleanUrl;
@@ -453,10 +453,9 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 if (match2) fileId = match2[1];
             }
             if (!fileId) return cleanUrl;
-            return isBanner ? `https://lh3.googleusercontent.com/d/${fileId}=s0` : `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
+            return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
         }
 
-        // BỘ ĐỌC CSV CHUẨN XÁC 100% (Xử lý được cả các ô có xuống dòng Alt+Enter trong Google Sheets)
         function parseFullCSV(csvText) {
             const rows = [];
             let currentRow = [];
@@ -507,29 +506,14 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             }
 
             const sheetId = sheetIdMatch[1];
-            // Thêm tham số chống lưu bộ nhớ đệm (cache) để luôn lấy ảnh Banner mới nhất từ Sheet
             const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&t=${Date.now()}`;
 
             try {
                 const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error('Không thể tải dữ liệu');
+                if (!response.ok) throw new Error('Không thể tải dữ liệu sản phẩm');
                 const csv = await response.text();
                 const rows = parseFullCSV(csv);
                 if (rows.length < 2) throw new Error('File trống');
-
-                // ĐỌC BANNER TỪ Ô M2 (Dòng 2, Cột 13) VÀ Ô M3 (Dòng 3, Cột 13)
-                try {
-                    if (rows.length >= 2 && rows[1].length >= 13 && rows[1][12]) {
-                        const bannerPcLink = convertGoogleDriveUrl(rows[1][12], true);
-                        if (bannerPcLink) document.getElementById('bannerPcImg').src = bannerPcLink;
-                    }
-                    if (rows.length >= 3 && rows[2].length >= 13 && rows[2][12]) {
-                        const bannerMobileLink = convertGoogleDriveUrl(rows[2][12], true);
-                        if (bannerMobileLink) document.getElementById('bannerMobileSource').srcset = bannerMobileLink;
-                    }
-                } catch (bannerErr) {
-                    console.log('Không thể tải banner từ ô M2, M3:', bannerErr);
-                }
 
                 const headers = rows[0].map(h => h.toLowerCase().trim());
                 
