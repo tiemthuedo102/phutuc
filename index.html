@@ -230,10 +230,10 @@
 
     <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner">
-        <!-- Banner dành riêng cho Máy tính (PC) -->
-        <img class="banner-pc" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner PC">
-        <!-- Banner dành riêng cho Điện thoại (Mobile) -->
-        <img class="banner-mobile" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Mobile">
+        <!-- Banner dành riêng cho Máy tính (PC) - Link lấy tự động từ ô M2 -->
+        <img class="banner-pc" id="bannerPcImg" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner PC">
+        <!-- Banner dành riêng cho Điện thoại (Mobile) - Link lấy tự động từ ô M3 -->
+        <img class="banner-mobile" id="bannerMobileImg" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Mobile">
     </a>
 
     <nav class="menu-bar" id="menu-bar">
@@ -290,7 +290,7 @@
                 <h3>Liên Hệ</h3>
                 <p><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="36" fill="#ea4335">
   <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-</svg> <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">
+</svg> <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%ACc,+Gia+Lai" target="_blank" class="map-link">
 Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 <p>👤 Chủ shop: <strong>Trịnh Thị Phương</strong></p>
                 <p>📞 Hotline: <strong>0365 630 354</strong></p>
@@ -443,7 +443,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 if (match2) fileId = match2[1];
             }
             if (!fileId) return cleanUrl;
-            return `https://lh3.googleusercontent.com/d/${fileId}=w400`;
+            return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
         }
 
         function parseCSVLine(line) {
@@ -487,6 +487,26 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 const csv = await response.text();
                 const lines = csv.trim().split('\n');
                 if (lines.length < 2) throw new Error('File trống');
+
+                // ĐỌC BANNER TỪ Ô M2 (Dòng 2, Index 1) VÀ Ô M3 (Dòng 3, Index 2) CỘT M (Cột 13, Index 12)
+                try {
+                    if (lines.length >= 2) {
+                        const row2Parts = parseCSVLine(lines[1] || '');
+                        if (row2Parts.length >= 13 && row2Parts[12]) {
+                            const bannerPcLink = convertGoogleDriveUrl(row2Parts[12]);
+                            if (bannerPcLink) document.getElementById('bannerPcImg').src = bannerPcLink;
+                        }
+                    }
+                    if (lines.length >= 3) {
+                        const row3Parts = parseCSVLine(lines[2] || '');
+                        if (row3Parts.length >= 13 && row3Parts[12]) {
+                            const bannerMobileLink = convertGoogleDriveUrl(row3Parts[12]);
+                            if (bannerMobileLink) document.getElementById('bannerMobileImg').src = bannerMobileLink;
+                        }
+                    }
+                } catch (bannerErr) {
+                    console.log('Không thể tải banner từ ô M2, M3:', bannerErr);
+                }
 
                 const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
                 
