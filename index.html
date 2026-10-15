@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tiệm thuê đồ 102</title>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --primary: #db7093; 
             --light-pink: #fff0f5; 
@@ -14,29 +18,33 @@
             --footer-bg: #2c3e50;
         }
         
-        body {
+        html, body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--light-pink);
             color: var(--text-main);
             margin: 0;
             padding: 0;
+            width: 100%;
             overflow-x: hidden;
         }
 
-        /* ================= BANNER TỰ ĐỘNG CO GIÃN CHUẨN ================= */
+        /* ================= BANNER TỰ ĐỘNG CO GIÃN - KHÔNG BAO GIỜ CẮT ẢNH ================= */
         .hero-banner {
             display: block;
             width: 100%;
-            margin: 0;
+            max-width: 100vw;
+            margin: 0 auto;
             padding: 0;
             border: none;
             text-decoration: none;
-            line-height: 0;
             background-color: var(--light-pink);
+            overflow: hidden;
         }
 
         .hero-banner picture {
-            display: block;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             width: 100%;
             margin: 0;
             padding: 0;
@@ -46,13 +54,12 @@
             display: block;
             width: 100% !important;
             max-width: 100% !important;
-            height: auto !important; /* Tự động tính chiều cao theo tỷ lệ ảnh gốc */
+            height: auto !important;
+            max-height: none !important;
+            object-fit: contain !important; /* Đảm bảo hiển thị trọn vẹn 100% ảnh, không bao giờ cắt chữ */
+            object-position: center center !important;
             margin: 0 auto;
             border: none;
-        }
-
-        .btn-discover {
-            display: none;
         }
 
         /* ================= MENU & TÌM KIẾM ================= */
@@ -229,7 +236,7 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG (Tự động co giãn 100% theo chiều ngang màn hình) -->
+    <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
             <!-- Ảnh dùng cho Điện thoại (Mobile) - Lấy từ ô M3 -->
@@ -434,7 +441,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             showCustomAlert(`<b>📌 ${title}</b><br><br>${content}`);
         }
 
-        // Thêm tham số isBanner để giữ nguyên độ phân giải gốc (=s0) cho ảnh Banner
         function convertGoogleDriveUrl(url, isBanner = false) {
             if (!url) return '';
             const cleanUrl = url.trim();
@@ -450,28 +456,46 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             return isBanner ? `https://lh3.googleusercontent.com/d/${fileId}=s0` : `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
         }
 
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
+        // BỘ ĐỌC CSV CHUẨN XÁC 100% (Xử lý được cả các ô có xuống dòng Alt+Enter trong Google Sheets)
+        function parseFullCSV(csvText) {
+            const rows = [];
+            let currentRow = [];
+            let currentCell = '';
             let insideQuotes = false;
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
+
+            for (let i = 0; i < csvText.length; i++) {
+                const char = csvText[i];
+                const nextChar = csvText[i + 1];
+
                 if (char === '"') {
-                    if (insideQuotes && line[i + 1] === '"') {
-                        current += '"';
+                    if (insideQuotes && nextChar === '"') {
+                        currentCell += '"';
                         i++;
                     } else {
                         insideQuotes = !insideQuotes;
                     }
                 } else if (char === ',' && !insideQuotes) {
-                    result.push(current.trim());
-                    current = '';
+                    currentRow.push(currentCell.trim());
+                    currentCell = '';
+                } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+                    if (char === '\r' && nextChar === '\n') i++;
+                    currentRow.push(currentCell.trim());
+                    if (currentRow.some(cell => cell !== '')) {
+                        rows.push(currentRow);
+                    }
+                    currentRow = [];
+                    currentCell = '';
                 } else {
-                    current += char;
+                    currentCell += char;
                 }
             }
-            result.push(current.trim());
-            return result;
+            if (currentCell !== '' || currentRow.length > 0) {
+                currentRow.push(currentCell.trim());
+                if (currentRow.some(cell => cell !== '')) {
+                    rows.push(currentRow);
+                }
+            }
+            return rows;
         }
 
         async function fetchSheetData() {
@@ -483,36 +507,31 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             }
 
             const sheetId = sheetIdMatch[1];
-            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+            // Thêm tham số chống lưu bộ nhớ đệm (cache) để luôn lấy ảnh Banner mới nhất từ Sheet
+            const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&t=${Date.now()}`;
 
             try {
                 const response = await fetch(csvUrl);
                 if (!response.ok) throw new Error('Không thể tải dữ liệu');
                 const csv = await response.text();
-                const lines = csv.trim().split('\n');
-                if (lines.length < 2) throw new Error('File trống');
+                const rows = parseFullCSV(csv);
+                if (rows.length < 2) throw new Error('File trống');
 
-                // ĐỌC BANNER TỪ Ô M2 VÀ Ô M3 CỘT M (Giữ kích thước gốc =s0 để co giãn chuẩn)
+                // ĐỌC BANNER TỪ Ô M2 (Dòng 2, Cột 13) VÀ Ô M3 (Dòng 3, Cột 13)
                 try {
-                    if (lines.length >= 2) {
-                        const row2Parts = parseCSVLine(lines[1] || '');
-                        if (row2Parts.length >= 13 && row2Parts[12]) {
-                            const bannerPcLink = convertGoogleDriveUrl(row2Parts[12], true);
-                            if (bannerPcLink) document.getElementById('bannerPcImg').src = bannerPcLink;
-                        }
+                    if (rows.length >= 2 && rows[1].length >= 13 && rows[1][12]) {
+                        const bannerPcLink = convertGoogleDriveUrl(rows[1][12], true);
+                        if (bannerPcLink) document.getElementById('bannerPcImg').src = bannerPcLink;
                     }
-                    if (lines.length >= 3) {
-                        const row3Parts = parseCSVLine(lines[2] || '');
-                        if (row3Parts.length >= 13 && row3Parts[12]) {
-                            const bannerMobileLink = convertGoogleDriveUrl(row3Parts[12], true);
-                            if (bannerMobileLink) document.getElementById('bannerMobileSource').srcset = bannerMobileLink;
-                        }
+                    if (rows.length >= 3 && rows[2].length >= 13 && rows[2][12]) {
+                        const bannerMobileLink = convertGoogleDriveUrl(rows[2][12], true);
+                        if (bannerMobileLink) document.getElementById('bannerMobileSource').srcset = bannerMobileLink;
                     }
                 } catch (bannerErr) {
                     console.log('Không thể tải banner từ ô M2, M3:', bannerErr);
                 }
 
-                const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase().trim());
+                const headers = rows[0].map(h => h.toLowerCase().trim());
                 
                 function findHeader(possibleNames) {
                     for (let name of possibleNames) {
@@ -535,8 +554,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 const img4Idx = findHeader(['image4', 'img4', 'anh4', 'ảnh 4', 'hinh4', 'hình 4']);
                 const img5Idx = findHeader(['image5', 'img5', 'anh5', 'ảnh 5', 'hinh5', 'hình 5']);
 
-                allProducts = lines.slice(1).map((line, idx) => {
-                    const parts = parseCSVLine(line);
+                allProducts = rows.slice(1).map((parts, idx) => {
                     const prodName = nameIdx !== -1 && parts[nameIdx] ? parts[nameIdx] : (parts[1] || '');
                     if (!prodName) return null;
 
