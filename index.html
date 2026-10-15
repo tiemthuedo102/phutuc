@@ -16,31 +16,39 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light-pink); color: var(--text-main);
-            margin: 0; padding: 0; overflow-x: hidden;
-        }
-
-        /* ================= BANNER TỰ ĐỘNG CO GIÃN ================= */
-        .hero-banner {
-            width: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            display: block;
-            cursor: pointer;
-            text-decoration: none;
-            box-sizing: border-box;
+            background-color: var(--light-pink);
+            color: var(--text-main);
+            margin: 0;
             padding: 0;
-            overflow: hidden;
-            line-height: 0; /* Loại bỏ khoảng trắng thừa dưới ảnh */
+            overflow-x: hidden;
         }
 
-        .hero-banner picture,
-        .hero-banner img {
-            width: 100%;
-            height: auto;
+        /* ================= BANNER TỰ ĐỘNG CO GIÃN CHUẨN ================= */
+        .hero-banner {
             display: block;
-            object-fit: cover;
-            border-radius: 0;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            border: none;
+            text-decoration: none;
+            line-height: 0;
+            background-color: var(--light-pink);
+        }
+
+        .hero-banner picture {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-banner img {
+            display: block;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important; /* Tự động tính chiều cao theo tỷ lệ ảnh gốc */
+            margin: 0 auto;
+            border: none;
         }
 
         .btn-discover {
@@ -221,7 +229,7 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG (Sử dụng thẻ <picture> để tự động thay đổi và co giãn linh hoạt theo màn hình) -->
+    <!-- BANNER ĐẦU TRANG (Tự động co giãn 100% theo chiều ngang màn hình) -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
             <!-- Ảnh dùng cho Điện thoại (Mobile) - Lấy từ ô M3 -->
@@ -426,10 +434,11 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             showCustomAlert(`<b>📌 ${title}</b><br><br>${content}`);
         }
 
-        function convertGoogleDriveUrl(url) {
+        // Thêm tham số isBanner để giữ nguyên độ phân giải gốc (=s0) cho ảnh Banner
+        function convertGoogleDriveUrl(url, isBanner = false) {
             if (!url) return '';
             const cleanUrl = url.trim();
-            if (!cleanUrl.includes('drive.google.com')) return cleanUrl;
+            if (!cleanUrl.includes('drive.google.com') && !cleanUrl.includes('googleusercontent.com')) return cleanUrl;
             let fileId = null;
             const match1 = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
             if (match1) fileId = match1[1];
@@ -438,7 +447,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 if (match2) fileId = match2[1];
             }
             if (!fileId) return cleanUrl;
-            return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
+            return isBanner ? `https://lh3.googleusercontent.com/d/${fileId}=s0` : `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
         }
 
         function parseCSVLine(line) {
@@ -483,19 +492,19 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 const lines = csv.trim().split('\n');
                 if (lines.length < 2) throw new Error('File trống');
 
-                // ĐỌC BANNER TỪ Ô M2 VÀ Ô M3 CỘT M
+                // ĐỌC BANNER TỪ Ô M2 VÀ Ô M3 CỘT M (Giữ kích thước gốc =s0 để co giãn chuẩn)
                 try {
                     if (lines.length >= 2) {
                         const row2Parts = parseCSVLine(lines[1] || '');
                         if (row2Parts.length >= 13 && row2Parts[12]) {
-                            const bannerPcLink = convertGoogleDriveUrl(row2Parts[12]);
+                            const bannerPcLink = convertGoogleDriveUrl(row2Parts[12], true);
                             if (bannerPcLink) document.getElementById('bannerPcImg').src = bannerPcLink;
                         }
                     }
                     if (lines.length >= 3) {
                         const row3Parts = parseCSVLine(lines[2] || '');
                         if (row3Parts.length >= 13 && row3Parts[12]) {
-                            const bannerMobileLink = convertGoogleDriveUrl(row3Parts[12]);
+                            const bannerMobileLink = convertGoogleDriveUrl(row3Parts[12], true);
                             if (bannerMobileLink) document.getElementById('bannerMobileSource').srcset = bannerMobileLink;
                         }
                     }
@@ -1014,7 +1023,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             const deposit = calculateDeposit(baseTotal);
             const receiveAmount = baseTotal - deposit + extraFee;
 
-            let msg = `🔔 *ĐƠN ĐẶT THUẾ ĐỒ (${timeString})*\n\n`;
+            let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *ĐT:* \`${phoneVal}\`\n`;
             msg += `📅 *Ngày mượn:* ${formatDateVN(rentalVal)}\n`;
@@ -1067,7 +1076,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 console.error(err);
                 showCustomAlert("Không thể kết nối tới Telegram. Vui lòng thử lại sau!");
             } finally {
-                btn.innerText = "📩 Gửi đơn qua Telegram";
+                btn.innerHTML = "📩 Gửi đơn tới shop!<br>SĐT: 0365.630.354";
                 btn.disabled = false;
             }
         }
