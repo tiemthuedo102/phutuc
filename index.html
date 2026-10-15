@@ -22,18 +22,24 @@
 
         /* ================= BANNER ================= */
         .hero-banner {
-            /* THAY LINK ẢNH BANNER CHO MÁY TÍNH VÀO ĐÂY */
-            background: url('https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0') center/contain no-repeat;
             width: 100%;
-            height: auto;
-            padding-bottom: 25%; /* Tự động co giãn theo tỷ lệ khung hình trên PC */
-            position: relative;
             display: block;
             cursor: pointer;
             text-decoration: none;
-            margin-top: 0px;   /* Chỉnh lề trên (khoảng cách phía trên banner) */
-            margin-bottom: 0px; /* Chỉnh lề dưới */
+            margin-top: 15px;    /* Chỉnh lề trên (khoảng cách phía trên banner) */
+            margin-bottom: 15px; /* Chỉnh lề dưới */
         }
+
+        .hero-banner img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Ẩn hiện banner theo thiết bị nếu dùng 2 ảnh khác nhau */
+        .banner-pc { display: block; }
+        .banner-mobile { display: none; }
 
         .btn-discover {
             display: none;
@@ -173,13 +179,9 @@
         }
 
         @media screen and (max-width: 768px) {
-            .hero-banner { 
-                /* THAY LINK ẢNH BANNER CHO ĐIỆN THOẠI VÀO ĐÂY */
-                background: url('https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0') center/contain no-repeat;
-                padding-bottom: 40%; 
-                margin-top: 0px;   /* Chỉnh lề trên trên điện thoại */
-            margin-bottom: 0px; /* Chỉnh lề dưới trên điện thoại */
-            }
+            /* Hiển thị ảnh banner ĐT và ẩn ảnh banner PC */
+            .banner-pc { display: none; }
+            .banner-mobile { display: block; }
 
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img.main-img { height: 180px; }
@@ -222,7 +224,12 @@
 <body>
 
     <!-- BANNER ĐẦU TRANG -->
-    <a href="#menu-bar" class="hero-banner"></a>
+    <a href="#menu-bar" class="hero-banner">
+        <!-- Banner dành cho Máy tính (PC) -->
+        <img class="banner-pc" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner Tiệm thuê đồ 102 PC">
+        <!-- Banner dành cho Điện thoại (Mobile) -->
+        <img class="banner-mobile" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Tiệm thuê đồ 102 Mobile">
+    </a>
 
     <nav class="menu-bar" id="menu-bar">
         <div class="menu-header-flex">
@@ -383,7 +390,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
 
     <!-- SCRIPT -->
     <script>
-        // Tắt tính năng tự khôi phục vị trí cuộn mặc định của trình duyệt để luôn về đầu trang khi reload
         if ('scrollRestoration' in history) {
             history.scrollRestoration = 'manual';
         }
@@ -988,7 +994,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             const deposit = calculateDeposit(baseTotal);
             const receiveAmount = baseTotal - deposit + extraFee;
 
-            let msg = `🔔 *ĐƠN ĐẶT THUÊ ĐỒ (${timeString})*\n\n`;
+            let msg = `🔔 *ĐƠN ĐẶT THUẾ ĐỒ (${timeString})*\n\n`;
             msg += `👤 *Họ tên KH:* ${nameVal !== '' ? nameVal : '_Không cung cấp_'}\n`;
             msg += `📞 *ĐT:* \`${phoneVal}\`\n`;
             msg += `📅 *Ngày mượn:* ${formatDateVN(rentalVal)}\n`;
@@ -1050,7 +1056,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         function closeOnOutside(e, id) { if (e.target.id === id) closeModal(id); }
 
         window.onload = () => {
-            // Cuộn ngay lên đầu trang khi tải xong
             window.scrollTo(0, 0);
             fetchSheetData();
         };
