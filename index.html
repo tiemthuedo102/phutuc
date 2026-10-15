@@ -60,24 +60,57 @@
 
         /* ================= MENU & TÌM KIẾM ================= */
         .menu-bar {
-            background-color: var(--white); padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background-color: var(--white); 
+            padding: 15px; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            width: 100%;
         }
+        
+        /* Gom chung menu-bar và nội dung vào container chuẩn 1200px để đồng bộ chiều rộng */
+        .menu-inner-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .menu-header-flex {
-            display: flex; gap: 10px; width: 100%; flex-wrap: wrap; align-items: center; justify-content: space-between;
+            display: flex; 
+            gap: 10px; 
+            width: 100%; 
+            flex-wrap: wrap; 
+            align-items: center; 
+            justify-content: space-between;
         }
         .hamburger-btn {
             display: none; width: 100%; background: var(--primary); color: var(--white); border: none;
             padding: 12px 20px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; text-align: left;
         }
+        
+        /* Căn chỉnh thanh tìm kiếm bám sát theo body/container chuẩn */
         .search-box-container {
-            flex: 1; min-width: 260px; position: relative;
+            width: 100%; 
+            position: relative;
         }
         .search-input {
-            width: 100%; padding: 10px 15px; border: 1px solid var(--accent); border-radius: 8px; font-size: 14px; outline: none; background: var(--white); box-sizing: border-box; transition: 0.3s;
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid var(--accent); 
+            border-radius: 8px; 
+            font-size: 15px; 
+            outline: none; 
+            background: var(--white); 
+            box-sizing: border-box; 
+            transition: 0.3s;
         }
         .search-input:focus { border-color: var(--primary); box-shadow: 0 0 5px rgba(219, 112, 147, 0.3); }
 
-        .menu-items { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; width: 100%; margin-top: 10px; transition: max-height 0.3s ease-out; }
+        .menu-items { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; width: 100%; transition: max-height 0.3s ease-out; }
         .dropdown { position: relative; display: inline-block; cursor: pointer; }
         .menu-btn {
             background: var(--light-pink); border: 1px solid var(--accent); padding: 10px 20px; 
@@ -155,7 +188,7 @@
             background: linear-gradient(135deg, #ffffff 0%, #f5eef0 100%); 
             box-shadow: inset 0 0 25px rgba(219, 112, 147, 0.15); 
             border: 1px solid var(--light-pink);
-            touch-action: pan-y; /* Cho phép cuộn dọc trang nhưng tối ưu vuốt ngang */
+            touch-action: pan-y;
         }
         
         .slide-img { width: 100%; height: 350px; object-fit: contain; display: none; user-select: none; -webkit-user-drag: none; }
@@ -204,11 +237,11 @@
             .btn-group { flex-direction: column; gap: 5px; }
             .btn { padding: 8px; font-size: 12px; }
 
-            .menu-bar { padding: 10px; }
+            .menu-bar { padding: 10px 15px; }
             .menu-header-flex { flex-direction: column; align-items: stretch; }
             .hamburger-btn { display: flex; align-items: center; justify-content: space-between; }
             .search-box-container { width: 100%; min-width: 100%; }
-            .menu-items { display: none; flex-direction: column; gap: 5px; margin-top: 10px; }
+            .menu-items { display: none; flex-direction: column; gap: 5px; margin-top: 5px; }
             .menu-items.show { display: flex; }
             .dropdown { width: 100%; }
             .menu-btn { width: 100%; text-align: left; display: flex; justify-content: space-between; }
@@ -245,25 +278,27 @@
     </a>
 
     <nav class="menu-bar" id="menu-bar">
-        <div class="menu-header-flex">
-            <button class="hamburger-btn" onclick="toggleMobileMenu()">
-                <span>☰ Danh mục sản phẩm</span>
-                <span id="menuIcon">▼</span>
-            </button>
-            
-            <div class="search-box-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Nhập mã sản phẩm hoặc tên đồ cần tìm..." oninput="filterProductsByKeyword()">
+        <div class="menu-inner-container">
+            <div class="menu-header-flex">
+                <button class="hamburger-btn" onclick="toggleMobileMenu()">
+                    <span>☰ Danh mục sản phẩm</span>
+                    <span id="menuIcon">▼</span>
+                </button>
+                
+                <div class="search-box-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Nhập mã sản phẩm hoặc tên đồ cần tìm..." oninput="filterProductsByKeyword()">
+                </div>
             </div>
-        </div>
 
-        <div class="menu-items" id="menuItems">
-            <button class="menu-btn active" id="btnAll" onclick="filterProducts('Tất cả')">Tất cả</button>
-            <div class="dropdown">
-                <button class="menu-btn">Chính sách ▾</button>
-                <div class="dropdown-content">
-                    <a onclick="showPolicyDetail('Hướng dẫn đặt thuê', '1. Chọn sản phẩm cần thuê trên website hoặc gửi mẫu trực tiếp cho tiệm.<br>2. Chọn Size và số lượng phù hợp.<br>3. Thêm vào giỏ hàng và điền thông tin liên hệ để gửi đơn.<br>4. Tiệm sẽ liên hệ xác nhận lịch thuê và chốt đơn cho bạn.')">📋 Hướng dẫn đặt thuê</a>
-                    <a onclick="showPolicyDetail('Chính sách đặt cọc', '1. Khách hàng vui lòng đặt cọc trước một phần giá trị hoặc hiện vật/giấy tờ tùy thân tùy theo thỏa thuận khi nhận đồ.<br>2. Tiền cọc sẽ được hoàn trả đầy đủ ngay sau khi khách hàng trả lại đồ nguyên vẹn và đúng hạn.')">💰 Chính sách đặt cọc</a>
-                    <a onclick="showPolicyDetail('Quy định hoàn trả đồ', '1. Trả đồ đúng thời hạn đã cam kết trong đơn thuê.<br>2. Trang phục và đạo cụ phải được giữ gìn sạch sẽ, không hư hỏng, rách hay dính bẩn khó giặt.<br>3. Mọi hư hỏng hoặc mất mát phát sinh sẽ được giải quyết theo mức độ thiệt hại thực tế.')">🔄 Quy định hoàn trả đồ</a>
+            <div class="menu-items" id="menuItems">
+                <button class="menu-btn active" id="btnAll" onclick="filterProducts('Tất cả')">Tất cả</button>
+                <div class="dropdown">
+                    <button class="menu-btn">Chính sách ▾</button>
+                    <div class="dropdown-content">
+                        <a onclick="showPolicyDetail('Hướng dẫn đặt thuê', '1. Chọn sản phẩm cần thuê trên website hoặc gửi mẫu trực tiếp cho tiệm.<br>2. Chọn Size và số lượng phù hợp.<br>3. Thêm vào giỏ hàng và điền thông tin liên hệ để gửi đơn.<br>4. Tiệm sẽ liên hệ xác nhận lịch thuê và chốt đơn cho bạn.')">📋 Hướng dẫn đặt thuê</a>
+                        <a onclick="showPolicyDetail('Chính sách đặt cọc', '1. Khách hàng vui lòng đặt cọc trước một phần giá trị hoặc hiện vật/giấy tờ tùy thân tùy theo thỏa thuận khi nhận đồ.<br>2. Tiền cọc sẽ được hoàn trả đầy đủ ngay sau khi khách hàng trả lại đồ nguyên vẹn và đúng hạn.')">💰 Chính sách đặt cọc</a>
+                        <a onclick="showPolicyDetail('Quy định hoàn trả đồ', '1. Trả đồ đúng thời hạn đã cam kết trong đơn thuê.<br>2. Trang phục và đạo cụ phải được giữ gìn sạch sẽ, không hư hỏng, rách hay dính bẩn khó giặt.<br>3. Mọi hư hỏng hoặc mất mát phát sinh sẽ được giải quyết theo mức độ thiệt hại thực tế.')">🔄 Quy định hoàn trả đồ</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -424,7 +459,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         let currentPage = 1;
         const itemsPerPage = 16;
 
-        // Biến phục vụ sự kiện vuốt cảm ứng (Touch Swiping)
         let touchStartX = 0;
         let touchEndX = 0;
         
@@ -784,7 +818,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
             document.getElementById('slideCounter').innerText = `${currentSlideIndex + 1}/${currentSlideImages.length}`;
         }
 
-        // Đính kèm sự kiện cảm ứng (Touch Events) cho slideshow container để vuốt màn hình di động
         document.addEventListener('DOMContentLoaded', () => {
             const slideshowContainer = document.getElementById('slideshowContainer');
             if (slideshowContainer) {
@@ -800,13 +833,11 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         });
 
         function handleSwipeGesture() {
-            const swipeThreshold = 40; // Khoảng cách tối thiểu tính bằng pixel để nhận diện là vuốt
+            const swipeThreshold = 40;
             if (touchEndX < touchStartX - swipeThreshold) {
-                // Vuốt sang trái -> Xem ảnh tiếp theo
                 changeSlide(1);
             }
             if (touchEndX > touchStartX + swipeThreshold) {
-                // Vuốt sang phải -> Xem ảnh trước đó
                 changeSlide(-1);
             }
         }
