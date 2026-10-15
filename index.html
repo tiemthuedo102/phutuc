@@ -28,31 +28,11 @@
             height: 0;
             padding-bottom: 25%; /* Tự động co giãn theo tỷ lệ khung hình trên PC */
             position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center; 
-            color: var(--white);
+            display: block;
+            cursor: pointer;
+            text-decoration: none;
         }
 
-        .hero-banner-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            padding: 0 10px;
-            box-sizing: border-box;
-        }
-
-        /* Thêm bóng đen cho chữ để luôn dễ đọc trên mọi nền ảnh */
-        .hero-banner h1, .hero-banner p { 
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8), 0px 0px 15px rgba(0,0,0,0.6); 
-        }
-        .hero-banner h1 { margin: 0 0 5px 0; font-size: 28px; font-weight: 800; text-transform: uppercase; }
-        .hero-banner p { margin: 0; font-size: 14px; line-height: 1.4; display: flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap; }
-        
         .btn-discover {
             display: none;
         }
@@ -196,8 +176,6 @@
                 background: url('https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0') center/cover no-repeat;
                 padding-bottom: 100%; 
             }
-            .hero-banner h1 { font-size: 18px; margin: 0 0 2px 0; }
-            .hero-banner p { font-size: 11px; }
 
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img.main-img { height: 180px; }
@@ -239,17 +217,8 @@
 </head>
 <body>
 
-    <header class="hero-banner">
-        <div class="hero-banner-content">
-            <h1>Tiệm thuê đồ 102</h1>
-            <p>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="#ea4335" style="vertical-align: middle;">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                </svg>
-                <a href="https://www.google.com/maps/search/?api=1&query=65+Hai+B%C3%A0+Tr%C6%B0ng,+Ph%C3%BA+T%C3%BAc,+Gia+Lai" target="_blank" class="map-link">Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a>
-            </p>
-        </div>
-    </header>
+    <!-- BANNER ĐÃ XÓA CHỮ VÀ GẮN LINK CUỘN XUỐNG NỘI DUNG -->
+    <a href="#menu-bar" class="hero-banner"></a>
 
     <nav class="menu-bar" id="menu-bar">
         <div class="menu-header-flex">
