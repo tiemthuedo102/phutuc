@@ -20,29 +20,28 @@
             margin: 0; padding: 0; overflow-x: hidden;
         }
 
-        /* ================= BANNER ================= */
+        /* ================= BANNER TỰ ĐỘNG CO GIÃN ================= */
         .hero-banner {
             width: 100%;
             max-width: 100%;
-            margin: 10px auto;
+            margin: 0 auto;
             display: block;
             cursor: pointer;
             text-decoration: none;
             box-sizing: border-box;
-            padding: 0px;
+            padding: 0;
             overflow: hidden;
+            line-height: 0; /* Loại bỏ khoảng trắng thừa dưới ảnh */
         }
 
+        .hero-banner picture,
         .hero-banner img {
             width: 100%;
             height: auto;
             display: block;
-            border-radius: 0px;
+            object-fit: cover;
+            border-radius: 0;
         }
-
-        /* KHAI BÁO RÕ RÀNG TRÊN MÁY TÍNH (PC) */
-        .banner-pc { display: block !important; }
-        .banner-mobile { display: none !important; }
 
         .btn-discover {
             display: none;
@@ -182,12 +181,6 @@
         }
 
         @media screen and (max-width: 768px) {
-            /* ẨN HOÀN TOÀN BANNER PC, CHỈ HIỆN BANNER MOBILE BẰNG !IMPORTANT */
-            .banner-pc { display: none !important; }
-            .banner-mobile { display: block !important; }
-
-            .hero-banner { padding: 0 10px; margin: 10px auto; }
-
             .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .product-card img.main-img { height: 180px; }
             .product-info { padding: 10px; }
@@ -228,12 +221,14 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG -->
+    <!-- BANNER ĐẦU TRANG (Sử dụng thẻ <picture> để tự động thay đổi và co giãn linh hoạt theo màn hình) -->
     <a href="#menu-bar" class="hero-banner">
-        <!-- Banner dành riêng cho Máy tính (PC) - Link lấy tự động từ ô M2 -->
-        <img class="banner-pc" id="bannerPcImg" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Banner PC">
-        <!-- Banner dành riêng cho Điện thoại (Mobile) - Link lấy tự động từ ô M3 -->
-        <img class="banner-mobile" id="bannerMobileImg" src="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0" alt="Banner Mobile">
+        <picture>
+            <!-- Ảnh dùng cho Điện thoại (Mobile) - Lấy từ ô M3 -->
+            <source media="(max-width: 768px)" id="bannerMobileSource" srcset="https://lh3.googleusercontent.com/d/1A-6jbm1gobRgB9c26DDZRyhfJW8tr5JG=s0">
+            <!-- Ảnh mặc định dùng cho Máy tính (PC) - Lấy từ ô M2 -->
+            <img id="bannerPcImg" src="https://lh3.googleusercontent.com/d/1xnlGuY0P51RGsFdfQpU6Z_yAAVkHdJa_=s0" alt="Tiệm thuê đồ 102">
+        </picture>
     </a>
 
     <nav class="menu-bar" id="menu-bar">
@@ -501,7 +496,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                         const row3Parts = parseCSVLine(lines[2] || '');
                         if (row3Parts.length >= 13 && row3Parts[12]) {
                             const bannerMobileLink = convertGoogleDriveUrl(row3Parts[12]);
-                            if (bannerMobileLink) document.getElementById('bannerMobileImg').src = bannerMobileLink;
+                            if (bannerMobileLink) document.getElementById('bannerMobileSource').srcset = bannerMobileLink;
                         }
                     }
                 } catch (bannerErr) {
