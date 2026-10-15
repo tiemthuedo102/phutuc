@@ -155,9 +155,10 @@
             background: linear-gradient(135deg, #ffffff 0%, #f5eef0 100%); 
             box-shadow: inset 0 0 25px rgba(219, 112, 147, 0.15); 
             border: 1px solid var(--light-pink);
+            touch-action: pan-y; /* Cho phép cuộn dọc trang nhưng tối ưu vuốt ngang */
         }
         
-        .slide-img { width: 100%; height: 350px; object-fit: contain; display: none; }
+        .slide-img { width: 100%; height: 350px; object-fit: contain; display: none; user-select: none; -webkit-user-drag: none; }
         .slide-img.active { display: block; }
         .slide-nav { cursor: pointer; position: absolute; top: 50%; padding: 12px; margin-top: -20px; color: white; font-weight: bold; font-size: 16px; border: none; background: rgba(0,0,0,0.5); z-index: 10; border-radius: 4px; transition: 0.3s; }
         .slide-nav:hover { background: rgba(219, 112, 147, 0.8); }
@@ -235,7 +236,7 @@
 </head>
 <body>
 
-    <!-- BANNER ĐẦU TRANG (Đọc tự động từ ô M2 và M3 trong Google Sheets) -->
+    <!-- BANNER ĐẦU TRANG -->
     <a href="#menu-bar" class="hero-banner">
         <picture>
             <source id="bannerMobileSource" media="(max-width: 768px)" srcset="https://i.ibb.co/rGvfPGJ5/baner-DT.png">
@@ -314,7 +315,7 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('albumModal')">&times;</span>
             <h2 class="modal-title" id="albumTitle">Chi tiết</h2>
-            <div class="slideshow-container">
+            <div class="slideshow-container" id="slideshowContainer">
                 <div id="slideWrapper"></div>
                 <button class="slide-nav prev" onclick="changeSlide(-1)">&#10094;</button>
                 <button class="slide-nav next" onclick="changeSlide(1)">&#10095;</button>
@@ -422,6 +423,10 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
         
         let currentPage = 1;
         const itemsPerPage = 16;
+
+        // Biến phục vụ sự kiện vuốt cảm ứng (Touch Swiping)
+        let touchStartX = 0;
+        let touchEndX = 0;
         
         function formatMoney(num) { return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."); }
 
@@ -512,8 +517,6 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 const rows = parseFullCSV(csv);
                 if (rows.length < 3) throw new Error('File trống');
 
-                // Đọc linh hoạt từ ô M2 (hàng index 1, cột index 12 hoặc qua tìm kiếm) và M3 (hàng index 2, cột index 12)
-                // Cột M là cột số 13 (index 12 trong mảng 0-based)
                 try {
                     let pcBannerUrl = rows[1] && rows[1][12] ? rows[1][12].trim() : '';
                     let mobileBannerUrl = rows[2] && rows[2][12] ? rows[2][12].trim() : '';
@@ -779,6 +782,33 @@ Số 65 Hai Bà Trưng, thôn Lâm Viên, xã Phú Túc, tỉnh Gia Lai</a></p>
                 if(i === currentSlideIndex) s.classList.add('active'); 
             });
             document.getElementById('slideCounter').innerText = `${currentSlideIndex + 1}/${currentSlideImages.length}`;
+        }
+
+        // Đính kèm sự kiện cảm ứng (Touch Events) cho slideshow container để vuốt màn hình di động
+        document.addEventListener('DOMContentLoaded', () => {
+            const slideshowContainer = document.getElementById('slideshowContainer');
+            if (slideshowContainer) {
+                slideshowContainer.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                }, { passive: true });
+
+                slideshowContainer.addEventListener('touchend', (e) => {
+                    touchEndX = e.changedTouches[0].screenX;
+                    handleSwipeGesture();
+                }, { passive: true });
+            }
+        });
+
+        function handleSwipeGesture() {
+            const swipeThreshold = 40; // Khoảng cách tối thiểu tính bằng pixel để nhận diện là vuốt
+            if (touchEndX < touchStartX - swipeThreshold) {
+                // Vuốt sang trái -> Xem ảnh tiếp theo
+                changeSlide(1);
+            }
+            if (touchEndX > touchStartX + swipeThreshold) {
+                // Vuốt sang phải -> Xem ảnh trước đó
+                changeSlide(-1);
+            }
         }
 
         function openOrder(id) {
